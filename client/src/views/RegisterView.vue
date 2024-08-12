@@ -6,34 +6,14 @@ import Button from "primevue/button";
 import Divider from "primevue/divider";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
-
 import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/yup";
-import * as yup from "yup";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
+import { schema } from "@/yup-schemas/RegisterFormSchema";
 
 const toast = useToast();
 
-const schema = toTypedSchema(
-  yup.object({
-    username: yup.string().required("Please enter your username."),
-    email: yup
-      .string()
-      .email("Please enter a valid email address.")
-      .required("Email is required."),
-    password: yup
-      .string()
-      .min(8, "Password must be at least 8 characters long.")
-      .required("Password cannot be empty."),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref("password")], "Passwords do not match.")
-      .required("Please confirm your password."),
-  })
-);
-
-const { handleSubmit, errors, values, defineField } = useForm({
+const { handleSubmit, errors, defineField } = useForm({
   validationSchema: schema,
 });
 
@@ -43,7 +23,8 @@ const [password, passwordAttrs] = defineField("password");
 const [confirmPassword, confirmPasswordAttrs] = defineField("confirmPassword");
 
 const onRegister = handleSubmit((values) => {
-  console.log(values);
+  const body = { ...values };
+  console.log(body);
 });
 </script>
 
@@ -72,6 +53,7 @@ const onRegister = handleSubmit((values) => {
             <i class="pi pi-user"></i>
           </InputGroupAddon>
           <InputText
+            size="large"
             placeholder="Username"
             v-model="username"
             v-bind="usernameAttrs"
@@ -89,9 +71,14 @@ const onRegister = handleSubmit((values) => {
       <div class="form-group">
         <InputGroup>
           <InputGroupAddon>
-            <i class="pi pi-envelope"></i>
+            <i class="pi pi-envelope"></i>  
           </InputGroupAddon>
-          <InputText placeholder="Email" v-model="email" v-bind="emailAttrs" />
+          <InputText
+            size="large"
+            placeholder="Email"
+            v-model="email"
+            v-bind="emailAttrs"
+          />
         </InputGroup>
         <Message
           icon="pi pi-times-circle"
@@ -108,6 +95,8 @@ const onRegister = handleSubmit((values) => {
             <i class="pi pi-key"></i>
           </InputGroupAddon>
           <InputText
+            type="password"
+            size="large"
             placeholder="Password"
             v-model="password"
             v-bind="passwordAttrs"
@@ -128,6 +117,8 @@ const onRegister = handleSubmit((values) => {
             <i class="pi pi-key"></i>
           </InputGroupAddon>
           <InputText
+            type="password"
+            size="large"
             placeholder="Confirm Password"
             v-model="confirmPassword"
             v-bind="confirmPasswordAttrs"
