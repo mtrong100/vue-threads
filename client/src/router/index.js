@@ -1,5 +1,7 @@
 import LoginView from "@/views/LoginView.vue";
 import HomeView from "@/views/HomeView.vue";
+import SearchView from "@/views/SearchView.vue";
+import FavoriteView from "@/views/FavoriteView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import RegisterView from "@/views/RegisterView.vue";
 import ProfileVue from "@/views/ProfileVue.vue";
@@ -13,6 +15,8 @@ const routes = [
     children: [
       { path: "", component: HomeView },
       { path: "profile", component: ProfileVue },
+      { path: "search", component: SearchView },
+      { path: "favorite", component: FavoriteView },
     ],
   },
   {

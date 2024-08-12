@@ -1,17 +1,57 @@
 <script setup>
 import { RouterLink } from "vue-router";
-import InputText from "primevue/inputtext";
 import InputGroup from "primevue/inputgroup";
 import InputGroupAddon from "primevue/inputgroupaddon";
 import Button from "primevue/button";
 import Divider from "primevue/divider";
+import Toast from "primevue/toast";
+import { useToast } from "primevue/usetoast";
+
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/yup";
+import * as yup from "yup";
+import InputText from "primevue/inputtext";
+import Message from "primevue/message";
+
+const toast = useToast();
+
+const schema = toTypedSchema(
+  yup.object({
+    username: yup.string().required("Please enter your username."),
+    email: yup
+      .string()
+      .email("Please enter a valid email address.")
+      .required("Email is required."),
+    password: yup
+      .string()
+      .min(8, "Password must be at least 8 characters long.")
+      .required("Password cannot be empty."),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref("password")], "Passwords do not match.")
+      .required("Please confirm your password."),
+  })
+);
+
+const { handleSubmit, errors, values, defineField } = useForm({
+  validationSchema: schema,
+});
+
+const [username, usernameAttrs] = defineField("username");
+const [email, emailAttrs] = defineField("email");
+const [password, passwordAttrs] = defineField("password");
+const [confirmPassword, confirmPasswordAttrs] = defineField("confirmPassword");
+
+const onRegister = handleSubmit((values) => {
+  console.log(values);
+});
 </script>
 
 <template>
   <div class="form-container">
     <h1 class="title">Register your new account</h1>
-
     <Divider />
+    <Toast />
 
     <Button
       label="Login with Google"
@@ -24,37 +64,85 @@ import Divider from "primevue/divider";
 
     <Divider />
 
-    <div class="form">
-      <InputGroup>
-        <InputGroupAddon>
-          <i class="pi pi-user"></i>
-        </InputGroupAddon>
-        <InputText placeholder="Username" size="large" />
-      </InputGroup>
+    <form @submit="onRegister" class="form">
+      <!-- Username Field -->
+      <div class="form-group">
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="pi pi-user"></i>
+          </InputGroupAddon>
+          <InputText
+            placeholder="Username"
+            v-model="username"
+            v-bind="usernameAttrs"
+          />
+        </InputGroup>
+        <Message
+          icon="pi pi-times-circle"
+          v-if="errors.username"
+          severity="error"
+          >{{ errors.username }}</Message
+        >
+      </div>
 
-      <InputGroup>
-        <InputGroupAddon>
-          <i class="pi pi-envelope"></i>
-        </InputGroupAddon>
-        <InputText placeholder="Email" size="large" />
-      </InputGroup>
+      <!-- Email Field -->
+      <div class="form-group">
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="pi pi-envelope"></i>
+          </InputGroupAddon>
+          <InputText placeholder="Email" v-model="email" v-bind="emailAttrs" />
+        </InputGroup>
+        <Message
+          icon="pi pi-times-circle"
+          v-if="errors.email"
+          severity="error"
+          >{{ errors.email }}</Message
+        >
+      </div>
 
-      <InputGroup>
-        <InputGroupAddon>
-          <i class="pi pi-key"></i>
-        </InputGroupAddon>
-        <InputText placeholder="Password" size="large" />
-      </InputGroup>
+      <!-- Password Field -->
+      <div class="form-group">
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="pi pi-key"></i>
+          </InputGroupAddon>
+          <InputText
+            placeholder="Password"
+            v-model="password"
+            v-bind="passwordAttrs"
+          />
+        </InputGroup>
+        <Message
+          icon="pi pi-times-circle"
+          v-if="errors.password"
+          severity="error"
+          >{{ errors.password }}</Message
+        >
+      </div>
 
-      <InputGroup>
-        <InputGroupAddon>
-          <i class="pi pi-key"></i>
-        </InputGroupAddon>
-        <InputText placeholder="Confirm password" size="large" />
-      </InputGroup>
+      <!-- Confirm Password Field -->
+      <div class="form-group">
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="pi pi-key"></i>
+          </InputGroupAddon>
+          <InputText
+            placeholder="Confirm Password"
+            v-model="confirmPassword"
+            v-bind="confirmPasswordAttrs"
+          />
+        </InputGroup>
+        <Message
+          icon="pi pi-times-circle"
+          v-if="errors.confirmPassword"
+          severity="error"
+          >{{ errors.confirmPassword }}</Message
+        >
+      </div>
 
-      <Button label="Register an account" size="large" />
-    </div>
+      <Button type="submit" label="Register an account" size="large" />
+    </form>
   </div>
 
   <div class="right-bg">
@@ -74,6 +162,12 @@ import Divider from "primevue/divider";
 </template>
 
 <style scoped>
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .form-container {
   width: 100%;
   max-width: 550px;
