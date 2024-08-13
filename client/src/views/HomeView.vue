@@ -1,6 +1,12 @@
-<script setup></script>
+<script setup>
+import { useUserStore } from "@/store/userStore";
+
+const userStore = useUserStore();
+
+console.log(userStore.currentUser);
+</script>
 <template>
-  <div class="container">
+  <div class="page-container">
     <div>This is home page</div>
     <p>
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus voluptas
@@ -11,8 +17,4 @@
   </div>
 </template>
 
-<style scoped>
-.container {
-  padding: 30px 0;
-}
-</style>
+<style scoped></style>

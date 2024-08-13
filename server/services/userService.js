@@ -36,6 +36,10 @@ const loginUser = async ({ email, password }) => {
     username: user.username,
     email: user.email,
     profilePicture: user.profilePicture,
+    bio: user.bio,
+    postCount: user.posts.length,
+    followersCount: user.followers.length,
+    followingCount: user.following.length,
   };
 
   return { payload, results };
@@ -83,7 +87,7 @@ const sendOtpCode = async (email) => {
   await sendOtpEmail(email, "Otp code for reset your password", otpCode);
 };
 
-export const resetPassword = async ({
+const resetPassword = async ({
   email,
   otpCode,
   newPassword,

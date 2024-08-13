@@ -1,5 +1,5 @@
 <template>
-  <div>this is search view</div>
+  <div class="page-container">this is search view</div>
 </template>
 
 <script setup></script>

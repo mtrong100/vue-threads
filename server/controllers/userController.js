@@ -31,6 +31,18 @@ export const loginUser = async (req, res) => {
   }
 };
 
+// @desc    Logout user
+// @route   POST /api/users/logout
+// @access  Private
+export const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie("VUE_THREADS_COOKIES");
+    return res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
 // @desc    Get user profile by ID
 // @route   GET /api/users/:id
 // @access  Private

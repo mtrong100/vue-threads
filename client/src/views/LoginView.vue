@@ -1,10 +1,63 @@
 <script setup>
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import InputText from "primevue/inputtext";
 import InputGroup from "primevue/inputgroup";
 import InputGroupAddon from "primevue/inputgroupaddon";
 import Button from "primevue/button";
 import Divider from "primevue/divider";
+import { ref } from "vue";
+import { useForm } from "vee-validate";
+import { loginUserApi } from "@/apis/userApi";
+import { schema } from "@/yup-schemas/LoginFormSchema";
+import { useToast } from "primevue/usetoast";
+import { useUserStore } from "@/store/userStore";
+import Message from "primevue/message";
+
+const toast = useToast();
+const router = useRouter();
+const loading = ref(false);
+const userStore = useUserStore();
+
+const { handleSubmit, errors, defineField } = useForm({
+  validationSchema: schema,
+});
+
+const [email, emailAttrs] = defineField("email");
+const [password, passwordAttrs] = defineField("password");
+
+const onLoginUser = handleSubmit(async (values) => {
+  loading.value = true;
+
+  const body = { ...values };
+
+  try {
+    const response = await loginUserApi(body);
+
+    if (response) {
+      userStore.saveCurrentUser(response.results);
+
+      toast.add({
+        severity: "success",
+        summary: "Login successful",
+        detail: response.message,
+        life: 1500,
+      });
+
+      router.push({ path: "/" });
+    }
+  } catch (error) {
+    console.log("Error login user:", error.message);
+
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: error.message,
+      life: 1500,
+    });
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
 
 <template>
@@ -24,23 +77,52 @@ import Divider from "primevue/divider";
 
     <Divider />
 
-    <div class="form">
-      <InputGroup>
-        <InputGroupAddon>
-          <i class="pi pi-envelope"></i>
-        </InputGroupAddon>
-        <InputText placeholder="Email" size="large" />
-      </InputGroup>
+    <form @submit="onLoginUser" class="form">
+      <!-- Email Field -->
+      <div class="form-group">
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="pi pi-envelope"></i>
+          </InputGroupAddon>
+          <InputText
+            size="large"
+            placeholder="Email"
+            v-model="email"
+            v-bind="emailAttrs"
+          />
+        </InputGroup>
+        <Message
+          icon="pi pi-times-circle"
+          v-if="errors.email"
+          severity="error"
+          >{{ errors.email }}</Message
+        >
+      </div>
 
-      <InputGroup>
-        <InputGroupAddon>
-          <i class="pi pi-key"></i>
-        </InputGroupAddon>
-        <InputText placeholder="Password" size="large" />
-      </InputGroup>
+      <!-- Password Field -->
+      <div class="form-group">
+        <InputGroup>
+          <InputGroupAddon>
+            <i class="pi pi-key"></i>
+          </InputGroupAddon>
+          <InputText
+            type="password"
+            size="large"
+            placeholder="Password"
+            v-model="password"
+            v-bind="passwordAttrs"
+          />
+        </InputGroup>
+        <Message
+          icon="pi pi-times-circle"
+          v-if="errors.password"
+          severity="error"
+          >{{ errors.password }}</Message
+        >
+      </div>
 
-      <Button label="Login" size="large" icon="pi pi-sign-in" />
-    </div>
+      <Button type="submit" label="Login" size="large" :loading="loading" />
+    </form>
   </div>
 
   <div class="right-bg">

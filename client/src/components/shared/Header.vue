@@ -1,44 +1,90 @@
 <script setup>
+import { logoutUserApi } from "@/apis/userApi";
+import { useUserStore } from "@/store/userStore";
 import Button from "primevue/button";
+import { useToast } from "primevue/usetoast";
+import { ref } from "vue";
 import { RouterLink } from "vue-router";
 
-const NAV_LINKS = [
-  {
-    label: "Home",
-    link: "/",
-  },
-  {
-    label: "Search",
-    link: "/search",
-  },
-  {
-    label: "Favorite",
-    link: "/favorite",
-  },
-  {
-    label: "Profile",
-    link: "/profile",
-  },
-];
+const userStore = useUserStore();
+const toast = useToast();
+const loading = ref(false);
+
+const onLogoutUser = async () => {
+  loading.value = true;
+
+  try {
+    const response = await logoutUserApi();
+
+    if (response) {
+      userStore.removeCurrentUser();
+      toast.add({
+        severity: "success",
+        summary: "Logout successful",
+        detail: response.message,
+        life: 1500,
+      });
+
+      router.push({ path: "/login" });
+    }
+  } catch (error) {
+    console.log("Error logout user:", error.message);
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: error.message,
+      life: 1500,
+    });
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <template>
   <header>
-    <div class="wrapper">
-      <div class="logo"><span style="color: #42b883">Vue</span>Threads</div>
+    <div class="page-layout">
+      <div class="wrapper">
+        <div class="logo"><span style="color: #42b883">Vue</span>Threads</div>
 
-      <nav>
-        <RouterLink
-          v-for="link in NAV_LINKS"
-          :key="link.label"
-          :to="link.link"
-          >{{ link.label }}</RouterLink
+        <nav
+          :style="{
+            justifyContent: userStore.currentUser ? 'flex-start' : 'center',
+          }"
         >
-      </nav>
+          <RouterLink to="/">Home</RouterLink>
+          <RouterLink to="/search">Search</RouterLink>
+          <RouterLink v-if="userStore.currentUser" to="/following"
+            >Following</RouterLink
+          >
+          <RouterLink v-if="userStore.currentUser" to="/notification"
+            >Notification</RouterLink
+          >
+          <RouterLink v-if="userStore.currentUser" to="/profile"
+            >Profile</RouterLink
+          >
+        </nav>
 
-      <RouterLink to="/login">
-        <Button label="Login" icon="pi pi-sign-in" />
-      </RouterLink>
+        <div style="display: flex; margin-left: auto">
+          <RouterLink to="/login">
+            <Button
+              label="Login"
+              icon="pi pi-sign-in"
+              v-if="!userStore.currentUser"
+            />
+          </RouterLink>
+
+          <Button
+            severity="danger"
+            outlined
+            label="Logout"
+            icon="pi pi-sign-out"
+            @click="onLogoutUser"
+            :loading="loading"
+            v-if="userStore.currentUser"
+          />
+        </div>
+      </div>
     </div>
   </header>
 </template>
@@ -62,7 +108,7 @@ nav a:hover {
 }
 
 header {
-  height: 60px;
+  height: 65px;
   background: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -70,14 +116,8 @@ header {
 }
 
 .wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 1000px;
-  padding: 0 20px;
-  margin-left: auto;
-  margin-right: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .logo {

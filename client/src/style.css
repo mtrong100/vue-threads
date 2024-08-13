@@ -21,3 +21,46 @@
       sans-serif;
   }
 }
+
+/* Reuse CSS */
+.flexcol {
+  display: flex;
+  flex-direction: column;
+}
+
+.facb {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.facenter {
+  display: flex;
+  align-items: center;
+}
+
+.card-wrapper {
+  width: 100%;
+  max-width: 660px;
+  margin: 0 auto;
+  padding-top: 16px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 10px;
+  background-color: white;
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.04);
+  overflow-x: hidden;
+  border: 1px solid #dedede;
+  border-radius: 12px;
+}
+
+.page-layout {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.page-container {
+  padding: 20px 0;
+}

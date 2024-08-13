@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import InputGroup from "primevue/inputgroup";
 import InputGroupAddon from "primevue/inputgroupaddon";
 import Button from "primevue/button";
@@ -10,8 +10,12 @@ import { useForm } from "vee-validate";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
 import { schema } from "@/yup-schemas/RegisterFormSchema";
+import { registerUserApi } from "@/apis/userApi";
+import { ref } from "vue";
 
 const toast = useToast();
+const router = useRouter();
+const loading = ref(false);
 
 const { handleSubmit, errors, defineField } = useForm({
   validationSchema: schema,
@@ -22,9 +26,38 @@ const [email, emailAttrs] = defineField("email");
 const [password, passwordAttrs] = defineField("password");
 const [confirmPassword, confirmPasswordAttrs] = defineField("confirmPassword");
 
-const onRegister = handleSubmit((values) => {
+const onRegisterUser = handleSubmit(async (values) => {
+  loading.value = true;
+
   const body = { ...values };
-  console.log(body);
+
+  try {
+    const response = await registerUserApi(body);
+
+    if (response) {
+      toast.add({
+        severity: "success",
+        summary: "Account created",
+        detail: response.message,
+        life: 1500,
+      });
+
+      setTimeout(() => {
+        router.push({ path: "/login" });
+      }, 1000);
+    }
+  } catch (error) {
+    console.log("Error registering user:", error.message);
+
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: error.message,
+      life: 1500,
+    });
+  } finally {
+    loading.value = false;
+  }
 });
 </script>
 
@@ -45,7 +78,7 @@ const onRegister = handleSubmit((values) => {
 
     <Divider />
 
-    <form @submit="onRegister" class="form">
+    <form @submit="onRegisterUser" class="form">
       <!-- Username Field -->
       <div class="form-group">
         <InputGroup>
@@ -71,7 +104,7 @@ const onRegister = handleSubmit((values) => {
       <div class="form-group">
         <InputGroup>
           <InputGroupAddon>
-            <i class="pi pi-envelope"></i>  
+            <i class="pi pi-envelope"></i>
           </InputGroupAddon>
           <InputText
             size="large"
@@ -132,7 +165,12 @@ const onRegister = handleSubmit((values) => {
         >
       </div>
 
-      <Button type="submit" label="Register an account" size="large" />
+      <Button
+        type="submit"
+        label="Register an account"
+        size="large"
+        :loading="loading"
+      />
     </form>
   </div>
 
