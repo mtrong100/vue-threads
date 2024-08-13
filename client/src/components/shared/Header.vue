@@ -4,9 +4,10 @@ import { useUserStore } from "@/store/userStore";
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
 import { ref } from "vue";
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 
 const userStore = useUserStore();
+const router = useRouter();
 const toast = useToast();
 const loading = ref(false);
 
@@ -18,6 +19,7 @@ const onLogoutUser = async () => {
 
     if (response) {
       userStore.removeCurrentUser();
+
       toast.add({
         severity: "success",
         summary: "Logout successful",

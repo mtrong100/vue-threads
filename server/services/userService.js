@@ -69,7 +69,18 @@ const updateUserProfile = async (userId, updateData) => {
 
   await user.save();
 
-  return user;
+  const results = {
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+    profilePicture: user.profilePicture,
+    bio: user.bio,
+    postCount: user.posts.length,
+    followersCount: user.followers.length,
+    followingCount: user.following.length,
+  };
+
+  return results;
 };
 
 const sendOtpCode = async (email) => {

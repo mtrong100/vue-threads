@@ -3,26 +3,20 @@ import { useUserStore } from "@/store/userStore";
 import Button from "primevue/button";
 
 const userStore = useUserStore();
-
-const {
-  username,
-  profilePicture,
-  email,
-  followersCount,
-  followingCount,
-  postCount,
-  bio,
-} = userStore.currentUser;
 </script>
 
 <template>
   <div>
     <div class="facenter" style="gap: 15px; align-items: start">
-      <img class="profile-pic" :src="profilePicture" :alt="username" />
+      <img
+        class="profile-pic"
+        :src="userStore.currentUser?.profilePicture"
+        :alt="userStore.currentUser?.username"
+      />
 
       <div>
         <div class="facenter" style="gap: 10px">
-          <p style="font-weight: 600">{{ username }}</p>
+          <p style="font-weight: 600">{{ userStore.currentUser?.username }}</p>
           <p class="date">3 hours ago</p>
         </div>
 

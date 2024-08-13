@@ -123,6 +123,14 @@ const onLoginUser = handleSubmit(async (values) => {
 
       <Button type="submit" label="Login" size="large" :loading="loading" />
     </form>
+
+    <div class="facb" style="margin-top: 15px">
+      <p>Forgot your password?</p>
+
+      <RouterLink style="color: #14b8a6" to="/reset-password"
+        >Forgot password</RouterLink
+      >
+    </div>
   </div>
 
   <div class="right-bg">

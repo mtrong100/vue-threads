@@ -10,7 +10,11 @@ import {
 } from "../controllers/userController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 import { validate } from "../middlewares/validateMiddleware.js";
-import { registerUserSchema } from "../validations/userValidation.js";
+import {
+  loginUserSchema,
+  registerUserSchema,
+  updateProfileSchema,
+} from "../validations/userValidation.js";
 
 const router = express.Router();
 
@@ -18,7 +22,7 @@ const router = express.Router();
 router.post("/register", validate(registerUserSchema), registerUser);
 
 // Route to login a user
-router.post("/login", loginUser);
+router.post("/login", validate(loginUserSchema), loginUser);
 
 // Route to logout a user
 router.post("/logout", protect, logoutUser);
@@ -27,7 +31,12 @@ router.post("/logout", protect, logoutUser);
 router.get("/:id", protect, getUserById);
 
 // Route to update user profile (protected route)
-router.put("/profile", protect, updateUserProfile);
+router.put(
+  "/profile",
+  protect,
+  validate(updateProfileSchema),
+  updateUserProfile
+);
 
 // Route to request password reset (send email with token)
 router.post("/send-otp-code", sendOtpCode);

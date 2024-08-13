@@ -9,6 +9,7 @@ import AuthenLayout from "@/components/layouts/AuthenLayout.vue";
 import { useUserStore } from "@/store/userStore";
 import FollowingView from "@/views/FollowingView.vue";
 import NotificationView from "@/views/NotificationView.vue";
+import ResetPasswordView from "@/views/ResetPasswordView.vue";
 
 const routes = [
   {
@@ -28,6 +29,7 @@ const routes = [
     children: [
       { path: "login", component: LoginView },
       { path: "register", component: RegisterView },
+      { path: "reset-password", component: ResetPasswordView },
     ],
   },
 ];
@@ -40,7 +42,13 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore();
 
-  const allowedPaths = ["/login", "/register", "/", "/search"];
+  const allowedPaths = [
+    "/login",
+    "/register",
+    "/",
+    "/search",
+    "/reset-password",
+  ];
 
   const publicPages = allowedPaths;
   const authRequired = !publicPages.includes(to.path);
