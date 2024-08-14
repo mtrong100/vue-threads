@@ -10,8 +10,8 @@ import Textarea from "primevue/textarea";
 import { useToast } from "primevue/usetoast";
 import { useForm } from "vee-validate";
 import Message from "primevue/message";
-import { schema } from "@/yup-schemas/UpdateProfileSchema";
 import { updateUserProfileApi } from "@/apis/userApi";
+import { updateProfileFormSchema } from "@/validations/userValidateSchemas";
 
 const userStore = useUserStore();
 const toast = useToast();
@@ -19,7 +19,7 @@ const visible = ref(false);
 const loading = ref(false);
 
 const { handleSubmit, errors, defineField, setValues } = useForm({
-  validationSchema: schema,
+  validationSchema: updateProfileFormSchema,
 });
 
 const [username, usernameAttrs] = defineField("username");
@@ -93,16 +93,27 @@ const onUpdateUserProfile = handleSubmit(async (values) => {
         <span>{{ userStore.currentUser?.postCount || 0 }} posts</span>
       </div>
 
-      <Button
-        label="Update profile"
-        outlined
-        style="width: 100%; margin-top: 20px"
-        @click="visible = true"
-      />
+      <div class="grid-cols-2" style="margin-top: 20px; gap: 5px">
+        <Button
+          label="View stats"
+          outlined
+          severity="help"
+          icon="pi pi-chart-bar"
+        />
+        <Button
+          label="Update profile"
+          outlined
+          @click="visible = true"
+          icon="pi pi-pencil"
+        />
+      </div>
 
       <Divider />
 
       <div class="my-posts">
+        <PostCard />
+        <PostCard />
+        <PostCard />
         <PostCard />
       </div>
     </section>

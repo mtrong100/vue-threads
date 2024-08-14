@@ -9,16 +9,16 @@ import { useToast } from "primevue/usetoast";
 import { useForm } from "vee-validate";
 import InputText from "primevue/inputtext";
 import Message from "primevue/message";
-import { schema } from "@/yup-schemas/RegisterFormSchema";
 import { registerUserApi } from "@/apis/userApi";
 import { ref } from "vue";
+import { registerFormSchema } from "@/validations/userValidateSchemas";
 
 const toast = useToast();
 const router = useRouter();
 const loading = ref(false);
 
 const { handleSubmit, errors, defineField } = useForm({
-  validationSchema: schema,
+  validationSchema: registerFormSchema,
 });
 
 const [username, usernameAttrs] = defineField("username");

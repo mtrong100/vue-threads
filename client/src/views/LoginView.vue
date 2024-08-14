@@ -8,10 +8,10 @@ import Divider from "primevue/divider";
 import { ref } from "vue";
 import { useForm } from "vee-validate";
 import { loginUserApi } from "@/apis/userApi";
-import { schema } from "@/yup-schemas/LoginFormSchema";
 import { useToast } from "primevue/usetoast";
 import { useUserStore } from "@/store/userStore";
 import Message from "primevue/message";
+import { loginFormSchema } from "@/validations/userValidateSchemas";
 
 const toast = useToast();
 const router = useRouter();
@@ -19,7 +19,7 @@ const loading = ref(false);
 const userStore = useUserStore();
 
 const { handleSubmit, errors, defineField } = useForm({
-  validationSchema: schema,
+  validationSchema: loginFormSchema,
 });
 
 const [email, emailAttrs] = defineField("email");
@@ -150,6 +150,11 @@ const onLoginUser = handleSubmit(async (values) => {
 </template>
 
 <style scoped>
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .form-container {
   width: 100%;
   max-width: 550px;

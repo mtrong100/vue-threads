@@ -14,9 +14,9 @@ import InputGroupAddon from "primevue/inputgroupaddon";
 import { useToast } from "primevue/usetoast";
 import { useForm } from "vee-validate";
 import { resetPasswordApi, sendOtpCodeApi } from "@/apis/userApi";
-import { schema } from "@/yup-schemas/ResetPasswordSchema";
 import Message from "primevue/message";
 import Toast from "primevue/toast";
+import { resetPasswordFormSchema } from "@/validations/userValidateSchemas";
 
 const toast = useToast();
 const router = useRouter();
@@ -25,7 +25,7 @@ const loading = ref(false);
 const sending = ref(false);
 
 const { handleSubmit, errors, defineField } = useForm({
-  validationSchema: schema,
+  validationSchema: resetPasswordFormSchema,
 });
 
 const [newPassword, newPasswordAttrs] = defineField("newPassword");

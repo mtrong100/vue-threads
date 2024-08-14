@@ -18,3 +18,16 @@ export const updateProfileSchema = Joi.object({
   bio: Joi.string().max(300).optional(),
   profilePicture: Joi.string().uri().optional(),
 });
+
+export const sendOtpSchema = Joi.object({
+  email: Joi.string().email().lowercase().required(),
+});
+
+export const resetPasswordSchema = Joi.object({
+  email: Joi.string().email().lowercase().required(),
+  otpCode: Joi.string()
+    .regex(/^\d{6}$/)
+    .required(),
+  newPassword: Joi.string().min(8).required(),
+  confirmPassword: Joi.string().valid(Joi.ref("password")).required(),
+});

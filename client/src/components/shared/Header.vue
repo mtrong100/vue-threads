@@ -59,15 +59,12 @@ const onLogoutUser = async () => {
           <RouterLink v-if="userStore.currentUser" to="/following"
             >Following</RouterLink
           >
-          <RouterLink v-if="userStore.currentUser" to="/notification"
-            >Notification</RouterLink
-          >
           <RouterLink v-if="userStore.currentUser" to="/profile"
             >Profile</RouterLink
           >
         </nav>
 
-        <div style="display: flex; margin-left: auto">
+        <div style="display: flex; margin-left: auto; gap: 8px">
           <RouterLink to="/login">
             <Button
               label="Login"
@@ -79,12 +76,18 @@ const onLogoutUser = async () => {
           <Button
             severity="danger"
             outlined
-            label="Logout"
             icon="pi pi-sign-out"
             @click="onLogoutUser"
             :loading="loading"
             v-if="userStore.currentUser"
           />
+          <Button
+            severity="info"
+            outlined
+            icon="pi pi-bell"
+            v-if="userStore.currentUser"
+          />
+          <Button outlined icon="pi pi-comment" v-if="userStore.currentUser" />
         </div>
       </div>
     </div>
@@ -110,11 +113,14 @@ nav a:hover {
 }
 
 header {
+  position: sticky;
+  top: 0;
   height: 65px;
   background: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
+  z-index: 50;
 }
 
 .wrapper {

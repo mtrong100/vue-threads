@@ -13,6 +13,8 @@ import { validate } from "../middlewares/validateMiddleware.js";
 import {
   loginUserSchema,
   registerUserSchema,
+  resetPasswordSchema,
+  sendOtpSchema,
   updateProfileSchema,
 } from "../validations/userValidation.js";
 
@@ -39,9 +41,9 @@ router.put(
 );
 
 // Route to request password reset (send email with token)
-router.post("/send-otp-code", sendOtpCode);
+router.post("/send-otp-code", validate(sendOtpSchema), sendOtpCode);
 
 // Route to reset the password
-router.put("/reset-password", resetPassword);
+router.put("/reset-password", validate(resetPasswordSchema), resetPassword);
 
 export default router;

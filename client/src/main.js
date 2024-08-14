@@ -7,7 +7,6 @@ import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
 import "primeicons/primeicons.css";
 import ToastService from "primevue/toastservice";
-import Toast from "primevue/toast";
 
 const pinia = createPinia();
 const app = createApp(App);
