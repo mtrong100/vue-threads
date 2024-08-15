@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 export const autoGeneratePassword = () => {
   const generatedPassword =
@@ -21,4 +22,11 @@ export const generateTokenAndSetCookie = (payload, res) => {
 
 export const generateOtpCode = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+export const objectIdValidator = (value, helpers) => {
+  if (!mongoose.Types.ObjectId.isValid(value)) {
+    return helpers.error("any.invalid");
+  }
+  return value;
 };
