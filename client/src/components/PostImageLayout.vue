@@ -1,6 +1,6 @@
 <script setup>
+import Image from "primevue/image";
 import { computed } from "vue";
-import Button from "primevue/button";
 
 const props = defineProps({
   images: {
@@ -8,8 +8,6 @@ const props = defineProps({
     default: () => [],
   },
 });
-
-const emit = defineEmits(["delete-image"]);
 
 const gridClass = computed(() => {
   const length = props.images.length;
@@ -22,38 +20,22 @@ const gridClass = computed(() => {
 
 <template>
   <div :class="`image-box ${gridClass}`">
-    <div
-      v-for="(image, index) in props.images"
-      :key="index"
-      class="image-container"
-    >
-      <img :src="image" alt="Image" preview />
-      <div class="delete-button">
-        <Button
-          icon="pi pi-trash"
-          severity="danger"
-          rounded
-          @click="emit('delete-image', index)"
-        />
-      </div>
-    </div>
+    <Image
+      v-for="image in images"
+      :src="image"
+      alt="Image"
+      preview
+      imageStyle="width: 100%; height: 100%; border-radius: 8px; object-fit: contain"
+    />
   </div>
 </template>
 
 <style scoped>
-.image-container {
-  position: relative;
-}
-.delete-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
 img {
   width: 100%;
-  height: 100%;
+  height: 250px;
   border-radius: 8px;
-  object-fit: contain;
+  object-fit: cover;
 }
 .image-box {
   display: grid;

@@ -20,3 +20,5 @@ export const MONTH_NAMES = [
   "November",
   "December",
 ];
+
+export const POST_LIMIT = 2;

@@ -5,96 +5,57 @@ import Divider from "primevue/divider";
 import Avatar from "primevue/avatar";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
-import { ref } from "vue";
 import Textarea from "primevue/textarea";
 import { useToast } from "primevue/usetoast";
-import Toast from "primevue/toast";
 import ImageGallery from "../components/ImageGallery.vue";
-import { createPostApi } from "@/apis/postApi";
+import { usePostStore } from "@/store/postStore";
+import { onMounted } from "vue";
+import ProgressSpinner from "primevue/progressspinner";
+import ConfirmDialog from "primevue/confirmdialog";
+import { useConfirm } from "primevue/useconfirm";
 
-const visible = ref(false);
-const userStore = useUserStore();
 const toast = useToast();
-const content = ref("");
-const images = ref([]);
-const loading = ref(false);
+const confirm = useConfirm();
+const userStore = useUserStore();
+const postStore = usePostStore();
 
 const onUploadImages = async (event) => {
-  const files = event.target.files;
-
-  if (files.length > 4) {
-    console.error("You can only upload a maximum of 4 images.");
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: "You can only upload a maximum of 4 images.",
-      life: 3000,
-    });
-    return;
-  }
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const reader = new FileReader();
-
-    if (file) {
-      reader.readAsDataURL(file);
-      reader.onloadend = () => {
-        images.value.push(reader.result);
-      };
-    }
-  }
+  await postStore.uploadImages(event, toast);
 };
 
 const onDeleteImage = (index) => {
-  images.value.splice(index, 1);
+  postStore.deleteImage(index);
 };
 
 const onCreatePost = async () => {
-  loading.value = true;
-
-  if (!content.value.trim()) {
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: "Content is required",
-      life: 3000,
-    });
-    return;
-  }
-
-  try {
-    const body = {
-      content: content.value,
-      images: images.value,
-    };
-
-    const response = await createPostApi(body);
-
-    if (response) {
-      toast.add({
-        severity: "success",
-        summary: "Post created",
-        detail: response.message,
-        life: 3000,
-      });
-
-      content.value = "";
-      images.value = [];
-    }
-  } catch (error) {
-    console.log("Error creating post:", error.message);
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: error.message,
-      life: 3000,
-    });
-  } finally {
-    loading.value = false;
-    visible.value = false;
-  }
+  await postStore.createPost(toast);
 };
+
+const confirmDeleteBox = (postId) => {
+  confirm.require({
+    message: "Do you want to delete this post?",
+    header: "Danger Zone",
+    icon: "pi pi-info-circle",
+    rejectLabel: "Cancel",
+    rejectProps: {
+      label: "Cancel",
+      severity: "secondary",
+      outlined: true,
+    },
+    acceptProps: {
+      label: "Delete",
+      severity: "danger",
+    },
+    accept: () => {
+      postStore.deletePost(postId, toast);
+    },
+    reject: () => {},
+  });
+};
+
+onMounted(() => {
+  postStore.fetchPosts();
+});
 </script>
 <template>
   <div class="page-container">
@@ -111,23 +72,36 @@ const onCreatePost = async () => {
         <Button
           label="Create post"
           raised
-          size="small"
-          @click="visible = true"
+          @click="postStore.setVisible(true)"
         />
       </div>
       <Divider />
-      <div>
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
+
+      <div v-if="postStore.loading" class="facenter">
+        <ProgressSpinner />
       </div>
+
+      <PostCard
+        v-for="post in postStore.posts"
+        :key="post?._id"
+        :post="post"
+        @delete-post="confirmDeleteBox"
+      />
+
+      <Button
+        label="Load more"
+        icon="pi pi-spinner"
+        severity="contrast"
+        style="display: flex; margin: 0 auto"
+        @click="postStore.loadMorePosts"
+        v-if="postStore.totalPosts > postStore.posts.length"
+      />
     </section>
 
-    <Toast />
+    <ConfirmDialog></ConfirmDialog>
 
     <Dialog
-      v-model:visible="visible"
+      v-model:visible="postStore.visible"
       modal
       header="Create new post"
       :style="{ width: '40rem' }"
@@ -138,12 +112,15 @@ const onCreatePost = async () => {
             autoResize
             rows="3"
             placeholder="What's on your mind?"
-            v-model="content"
+            v-model="postStore.content"
             style="width: 100%; border: none"
           />
 
-          <div v-if="images.length > 0">
-            <ImageGallery :images="images" @delete-image="onDeleteImage" />
+          <div v-if="postStore.images.length > 0">
+            <ImageGallery
+              :images="postStore.images"
+              @delete-image="onDeleteImage"
+            />
           </div>
 
           <div v-else class="box-images">
@@ -168,9 +145,13 @@ const onCreatePost = async () => {
             label="Close"
             outlined
             severity="danger"
-            @click="visible = false"
+            @click="postStore.setVisible(false)"
           />
-          <Button type="submit" label="Create post" :loading="loading" />
+          <Button
+            type="submit"
+            label="Create post"
+            :loading="postStore.isCreating"
+          />
         </div>
       </form>
     </Dialog>
