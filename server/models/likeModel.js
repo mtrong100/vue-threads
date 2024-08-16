@@ -8,7 +8,6 @@ const LikeSchema = new mongoose.Schema(
       required: true,
     },
     postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
-    commentId: { type: mongoose.Schema.Types.ObjectId, ref: "Comment" },
   },
   {
     timestamps: true,

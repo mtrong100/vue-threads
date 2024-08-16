@@ -28,6 +28,8 @@ const getPosts = async (limit) => {
         username: post.userId.username,
         profilePicture: post.userId.profilePicture,
       },
+      likes: post.likes,
+      comments: post.comments,
       createdAt: post.createdAt,
     };
   });
@@ -54,6 +56,8 @@ const getPostDetails = async (postId) => {
     images: post.images,
     likesCount: post.likes.length,
     commentsCount: post.comments.length,
+    likes: post.likes,
+    comments: post.comments,
     author: {
       authorId: post.userId._id,
       username: post.userId.username,
@@ -87,6 +91,8 @@ const getPostsByUser = async (userId, limit) => {
       images: post.images,
       likesCount: post.likes.length,
       commentsCount: post.comments.length,
+      likes: post.likes,
+      comments: post.comments,
       author: {
         authorId: post.userId._id,
         username: post.userId.username,
@@ -100,6 +106,41 @@ const getPostsByUser = async (userId, limit) => {
     results,
     totalUserPosts,
   };
+};
+
+const getLikedPostsByUser = async (userId) => {
+  try {
+    const likedPosts = await Post.find({ likes: userId })
+      .populate("userId", "_id username profilePicture")
+      .exec();
+
+    if (likedPosts.length === 0) {
+      return { message: "No liked posts found" };
+    }
+
+    const results = likedPosts.map((post) => {
+      return {
+        _id: post._id,
+        content: post.content,
+        images: post.images,
+        likes: post.likes,
+        comments: post.comments,
+        likesCount: post.likes.length,
+        commentsCount: post.comments.length,
+        author: {
+          authorId: post.userId._id,
+          username: post.userId.username,
+          profilePicture: post.userId.profilePicture,
+        },
+        createdAt: post.createdAt,
+      };
+    });
+
+    return results;
+  } catch (error) {
+    console.error("Error fetching liked posts:", error);
+    throw new Error("Error fetching liked posts");
+  }
 };
 
 const createPost = async ({ content, userId, images }) => {
@@ -166,6 +207,32 @@ const deletePost = async (postId) => {
   }
 };
 
+const toggleLikePost = async ({ postId, userId }) => {
+  const post = await Post.findById(postId);
+
+  if (!post) {
+    throw new Error("Post not found");
+  }
+
+  const hasLiked = post.likes.includes(userId);
+
+  if (hasLiked) {
+    // If the user has already liked the post, remove the like
+    post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
+
+    await post.save();
+
+    return { message: "Post unliked successfully", likes: post.likes.length };
+  } else {
+    // If the user hasn't liked the post, add the like
+    post.likes.push(userId);
+
+    await post.save();
+
+    return { message: "Post liked successfully", likes: post.likes.length };
+  }
+};
+
 export {
   createPost,
   updatePost,
@@ -173,4 +240,6 @@ export {
   deletePost,
   getPostDetails,
   getPostsByUser,
+  toggleLikePost,
+  getLikedPostsByUser,
 };

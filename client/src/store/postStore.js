@@ -1,20 +1,23 @@
 import {
   createPostApi,
   deletePostApi,
+  getLikedPostsByUserApi,
   getPostDetailsApi,
   getPostsApi,
   getPostsByUserApi,
+  toggleLikePostApi,
   updatePostApi,
 } from "@/apis/postApi";
 import { defineStore } from "pinia";
 
-const POST_LIMIT = 2;
+const POST_LIMIT = 5;
 
 export const usePostStore = defineStore("post", {
   state: () => ({
     posts: [],
     userPosts: [],
     images: [],
+    likedPosts: [],
     content: "",
     loading: false,
     visible: false,
@@ -135,10 +138,10 @@ export const usePostStore = defineStore("post", {
         const response = await deletePostApi(postId);
 
         if (response) {
-          const index = this.posts.findIndex((post) => post._id === postId);
+          const index = this.userPosts.findIndex((post) => post._id === postId);
 
           if (index !== -1) {
-            this.posts.splice(index, 1);
+            this.userPosts.splice(index, 1);
             toast.add({
               severity: "success",
               summary: "Post deleted",
@@ -178,9 +181,9 @@ export const usePostStore = defineStore("post", {
         const response = await updatePostApi(postId, body);
 
         if (response) {
-          const index = this.posts.findIndex((post) => post._id === postId);
+          const index = this.userPosts.findIndex((post) => post._id === postId);
           if (index !== -1) {
-            this.posts[index] = response.results;
+            this.userPosts[index] = response.results;
             toast.add({
               severity: "success",
               summary: "Post updated",
@@ -232,6 +235,37 @@ export const usePostStore = defineStore("post", {
     loadMoreUserPosts(userId) {
       this.userPostLimit += POST_LIMIT;
       this.fetchPostsByUser(userId);
+    },
+    async toggleLikePost(postId, toast) {
+      try {
+        const response = await toggleLikePostApi(postId);
+        if (response) {
+          toast.add({
+            severity: "success",
+            detail: response.message,
+            life: 1500,
+          });
+        }
+      } catch (error) {
+        console.log("Error toggling like post:", error.message);
+        toast.add({
+          severity: "error",
+          detail: error.message,
+          life: 1500,
+        });
+      } finally {
+        this.fetchPosts();
+      }
+    },
+    async fetchLikedPosts() {
+      try {
+        const response = await getLikedPostsByUserApi();
+        if (response) {
+          this.likedPosts = response.results;
+        }
+      } catch (error) {
+        console.log("Error getting liked posts:", error.message);
+      }
     },
   },
 });

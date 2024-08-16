@@ -13,6 +13,13 @@ import Message from "primevue/message";
 import { updateUserProfileApi } from "@/apis/userApi";
 import { updateProfileFormSchema } from "@/validations/userValidateSchemas";
 import { usePostStore } from "@/store/postStore";
+import CreatePostDialog from "@/components/CreatePostDialog.vue";
+import UpdatePostDialog from "@/components/UpdatePostDialog.vue";
+import Tabs from "primevue/tabs";
+import TabList from "primevue/tablist";
+import Tab from "primevue/tab";
+import TabPanels from "primevue/tabpanels";
+import TabPanel from "primevue/tabpanel";
 
 const userStore = useUserStore();
 const postStore = usePostStore();
@@ -40,6 +47,7 @@ onMounted(() => {
 
 onMounted(() => {
   postStore.fetchPostsByUser(userStore.currentUser?._id);
+  postStore.fetchLikedPosts();
 });
 
 const onUpdateUserProfile = handleSubmit(async (values) => {
@@ -116,21 +124,42 @@ const onUpdateUserProfile = handleSubmit(async (values) => {
 
       <Divider />
 
-      <PostCard
-        v-for="post in postStore.userPosts"
-        :key="post?._id"
-        :post="post"
-      />
+      <Tabs value="0">
+        <TabList>
+          <Tab style="flex: 1" value="0">My Posts</Tab>
+          <Tab style="flex: 1" value="1">Liked Posts</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel value="0">
+            <PostCard
+              v-for="post in postStore.userPosts"
+              :key="post?._id"
+              :post="post"
+              :showPostAction="true"
+            />
 
-      <Button
-        label="Load more"
-        icon="pi pi-spinner"
-        severity="contrast"
-        style="display: flex; margin: 0 auto"
-        @click="postStore.loadMoreUserPosts(userStore.currentUser?._id)"
-        v-if="postStore.totalUserPosts > postStore.userPosts.length"
-      />
+            <Button
+              label="Load more"
+              icon="pi pi-spinner"
+              severity="contrast"
+              style="display: flex; margin: 0 auto"
+              @click="postStore.loadMoreUserPosts(userStore.currentUser?._id)"
+              v-if="postStore.totalUserPosts > postStore.userPosts.length"
+            />
+          </TabPanel>
+          <TabPanel value="1">
+            <PostCard
+              v-for="post in postStore.likedPosts"
+              :key="post?._id"
+              :post="post"
+            />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </section>
+
+    <CreatePostDialog />
+    <UpdatePostDialog />
 
     <!-- Update profile dialog -->
     <Dialog

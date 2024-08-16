@@ -48,6 +48,19 @@ export const getPostsByUser = async (req, res) => {
   }
 };
 
+export const getLikedPostsByUser = async (req, res) => {
+  try {
+    const results = await postService.getLikedPostsByUser(req.user._id);
+    return res.status(200).json({
+      message: "Liked posts fetched successfully",
+      results,
+    });
+  } catch (error) {
+    console.error("Error getting liked posts by user:", error.message);
+    return res.status(400).json({ message: error.message });
+  }
+};
+
 export const createPost = async (req, res) => {
   try {
     const { images, content } = req.body;
@@ -110,6 +123,23 @@ export const deletePost = async (req, res) => {
     });
   } catch (error) {
     console.log("Error deleting post:", error.message);
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export const toggleLikePost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { _id: userId } = req.user;
+
+    const results = await postService.toggleLikePost({ postId, userId });
+
+    return res.status(200).json({
+      message: "Like toggled successfully",
+      results,
+    });
+  } catch (error) {
+    console.log("Error toggling like:", error.message);
     return res.status(400).json({ message: error.message });
   }
 };

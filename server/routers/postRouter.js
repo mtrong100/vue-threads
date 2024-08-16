@@ -6,6 +6,8 @@ import {
   getPosts,
   updatePost,
   getPostsByUser,
+  toggleLikePost,
+  getLikedPostsByUser,
 } from "../controllers/postController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 import { validate } from "../middlewares/validateMiddleware.js";
@@ -15,11 +17,15 @@ const router = express.Router();
 
 router.get("/", getPosts);
 
+router.get("/like-posts", protect, getLikedPostsByUser);
+
 router.get("/:id", getPostDetails);
 
 router.get("/user/:id", getPostsByUser);
 
 router.post("/create", protect, validate(createPostSchema), createPost);
+
+router.post("/:postId/like", protect, toggleLikePost);
 
 router.put("/update/:id", protect, validate(createPostSchema), updatePost);
 

@@ -6,15 +6,21 @@ import { formatDate } from "@/utils/helper";
 import { useUserStore } from "@/store/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { usePostStore } from "@/store/postStore";
+import { useToast } from "primevue/usetoast";
 
 const props = defineProps({
   post: {
     type: Object,
     required: true,
   },
+  showPostAction: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const confirm = useConfirm();
+const toast = useToast();
 const userStore = useUserStore();
 const postStore = usePostStore();
 
@@ -44,6 +50,10 @@ const onUpdatePost = (postId) => {
   postStore.setVisible2(true);
   postStore.fetchPostDetails(postId);
 };
+
+const onToggleLikePost = (postId) => {
+  postStore.toggleLikePost(postId, toast);
+};
 </script>
 
 <template>
@@ -70,33 +80,52 @@ const onUpdatePost = (postId) => {
 
       <div class="post-action">
         <div class="facenter" style="gap: 8px">
-          <Button icon="pi pi-heart" severity="danger" text raised rounded />
+          <Button
+            icon="pi pi-heart-fill"
+            severity="danger"
+            raised
+            rounded
+            v-if="post?.likes?.includes(userStore.currentUser?._id)"
+            @click="onToggleLikePost(post?._id)"
+          />
+          <Button
+            icon="pi pi-heart"
+            severity="danger"
+            text
+            raised
+            rounded
+            v-else
+            @click="onToggleLikePost(post?._id)"
+          />
+
           <Button icon="pi pi-comment" severity="info" text raised rounded />
           <Button icon="pi pi-share-alt" text raised rounded />
         </div>
 
-        <div
-          v-if="userStore.currentUser?._id === post?.author?.authorId"
-          class="facenter"
-          style="gap: 8px"
-        >
-          <Button
-            icon="pi pi-pencil"
-            outlined
-            rounded
-            raised
-            severity="info"
-            @click="onUpdatePost(post?._id)"
-          />
-          <Button
-            icon="pi pi-trash"
-            rounded
-            severity="danger"
-            raised
-            outlined
-            @click="confirmDeleteBox(post?._id)"
-          />
-        </div>
+        <section v-if="showPostAction">
+          <div
+            v-if="userStore.currentUser?._id === post?.author?.authorId"
+            class="facenter"
+            style="gap: 8px"
+          >
+            <Button
+              icon="pi pi-pencil"
+              outlined
+              rounded
+              raised
+              severity="info"
+              @click="onUpdatePost(post?._id)"
+            />
+            <Button
+              icon="pi pi-trash"
+              rounded
+              severity="danger"
+              raised
+              outlined
+              @click="confirmDeleteBox(post?._id)"
+            />
+          </div>
+        </section>
       </div>
     </div>
   </article>
