@@ -12,8 +12,10 @@ import { useForm } from "vee-validate";
 import Message from "primevue/message";
 import { updateUserProfileApi } from "@/apis/userApi";
 import { updateProfileFormSchema } from "@/validations/userValidateSchemas";
+import { usePostStore } from "@/store/postStore";
 
 const userStore = useUserStore();
+const postStore = usePostStore();
 const toast = useToast();
 const visible = ref(false);
 const loading = ref(false);
@@ -34,6 +36,10 @@ onMounted(() => {
     bio: userStore.currentUser?.bio,
     profilePicture: userStore.currentUser?.profilePicture,
   });
+});
+
+onMounted(() => {
+  postStore.fetchPostsByUser(userStore.currentUser?._id);
 });
 
 const onUpdateUserProfile = handleSubmit(async (values) => {
@@ -110,12 +116,20 @@ const onUpdateUserProfile = handleSubmit(async (values) => {
 
       <Divider />
 
-      <div class="my-posts">
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-      </div>
+      <PostCard
+        v-for="post in postStore.userPosts"
+        :key="post?._id"
+        :post="post"
+      />
+
+      <Button
+        label="Load more"
+        icon="pi pi-spinner"
+        severity="contrast"
+        style="display: flex; margin: 0 auto"
+        @click="postStore.loadMoreUserPosts(userStore.currentUser?._id)"
+        v-if="postStore.totalUserPosts > postStore.userPosts.length"
+      />
     </section>
 
     <!-- Update profile dialog -->

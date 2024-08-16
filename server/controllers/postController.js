@@ -17,6 +17,37 @@ export const getPosts = async (req, res) => {
   }
 };
 
+export const getPostDetails = async (req, res) => {
+  try {
+    const results = await postService.getPostDetails(req.params.id);
+    return res.status(200).json({
+      message: "Post details fetched successfully",
+      results,
+    });
+  } catch (error) {
+    console.error("Error getting post details:", error.message);
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export const getPostsByUser = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || POST_LIMIT;
+    const { results, totalUserPosts } = await postService.getPostsByUser(
+      req.params.id,
+      limit
+    );
+    return res.status(200).json({
+      message: "Posts fetched successfully",
+      results,
+      totalUserPosts,
+    });
+  } catch (error) {
+    console.error("Error getting posts by user:", error.message);
+    return res.status(400).json({ message: error.message });
+  }
+};
+
 export const createPost = async (req, res) => {
   try {
     const { images, content } = req.body;
@@ -56,7 +87,11 @@ export const createPost = async (req, res) => {
 
 export const updatePost = async (req, res) => {
   try {
-    const results = await postService.updatePost(req.params.id, req.body);
+    const results = await postService.updatePost(
+      req.params.id,
+      req.user._id,
+      req.body
+    );
     return res.status(200).json({
       message: "Post updated successfully",
       results,

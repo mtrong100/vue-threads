@@ -3,6 +3,9 @@ import Button from "primevue/button";
 import Divider from "primevue/divider";
 import PostImageLayout from "./PostImageLayout.vue";
 import { formatDate } from "@/utils/helper";
+import { useUserStore } from "@/store/userStore";
+import { useConfirm } from "primevue/useconfirm";
+import { usePostStore } from "@/store/postStore";
 
 const props = defineProps({
   post: {
@@ -11,7 +14,36 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["delete-post"]);
+const confirm = useConfirm();
+const userStore = useUserStore();
+const postStore = usePostStore();
+
+const confirmDeleteBox = (postId) => {
+  confirm.require({
+    message: "Do you want to delete this post?",
+    header: "Danger Zone",
+    icon: "pi pi-info-circle",
+    rejectLabel: "Cancel",
+    rejectProps: {
+      label: "Cancel",
+      severity: "secondary",
+      outlined: true,
+    },
+    acceptProps: {
+      label: "Delete",
+      severity: "danger",
+    },
+    accept: () => {
+      postStore.deletePost(postId, toast);
+    },
+    reject: () => {},
+  });
+};
+
+const onUpdatePost = (postId) => {
+  postStore.setVisible2(true);
+  postStore.fetchPostDetails(postId);
+};
 </script>
 
 <template>
@@ -42,15 +74,27 @@ const emit = defineEmits(["delete-post"]);
           <Button icon="pi pi-comment" severity="info" text raised rounded />
           <Button icon="pi pi-share-alt" text raised rounded />
         </div>
-        <div class="facenter" style="gap: 8px">
-          <Button icon="pi pi-pencil" outlined rounded raised severity="info" />
+
+        <div
+          v-if="userStore.currentUser?._id === post?.author?.authorId"
+          class="facenter"
+          style="gap: 8px"
+        >
+          <Button
+            icon="pi pi-pencil"
+            outlined
+            rounded
+            raised
+            severity="info"
+            @click="onUpdatePost(post?._id)"
+          />
           <Button
             icon="pi pi-trash"
             rounded
             severity="danger"
             raised
             outlined
-            @click="emit('delete-post', post?._id)"
+            @click="confirmDeleteBox(post?._id)"
           />
         </div>
       </div>

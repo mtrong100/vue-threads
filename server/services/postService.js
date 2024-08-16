@@ -24,7 +24,7 @@ const getPosts = async (limit) => {
       likesCount: post.likes.length,
       commentsCount: post.comments.length,
       author: {
-        _id: post.userId._id,
+        authorId: post.userId._id,
         username: post.userId.username,
         profilePicture: post.userId.profilePicture,
       },
@@ -35,6 +35,70 @@ const getPosts = async (limit) => {
   return {
     results,
     totalPosts,
+  };
+};
+
+const getPostDetails = async (postId) => {
+  const post = await Post.findById(postId).populate({
+    path: "userId",
+    select: "_id username profilePicture",
+  });
+
+  if (!post) {
+    throw new Error("Post not found");
+  }
+
+  const results = {
+    _id: post._id,
+    content: post.content,
+    images: post.images,
+    likesCount: post.likes.length,
+    commentsCount: post.comments.length,
+    author: {
+      authorId: post.userId._id,
+      username: post.userId.username,
+      profilePicture: post.userId.profilePicture,
+    },
+    createdAt: post.createdAt,
+  };
+
+  return results;
+};
+
+const getPostsByUser = async (userId, limit) => {
+  const posts = await Post.find({ userId })
+    .populate({
+      path: "userId",
+      select: "_id username profilePicture",
+    })
+    .sort({ createdAt: -1 })
+    .limit(limit);
+
+  const totalUserPosts = await Post.countDocuments({ userId });
+
+  if (!posts || posts.length === 0) {
+    throw new Error("Posts not found");
+  }
+
+  const results = posts.map((post) => {
+    return {
+      _id: post._id,
+      content: post.content,
+      images: post.images,
+      likesCount: post.likes.length,
+      commentsCount: post.comments.length,
+      author: {
+        authorId: post.userId._id,
+        username: post.userId.username,
+        profilePicture: post.userId.profilePicture,
+      },
+      createdAt: post.createdAt,
+    };
+  });
+
+  return {
+    results,
+    totalUserPosts,
   };
 };
 
@@ -56,7 +120,7 @@ const createPost = async ({ content, userId, images }) => {
     likesCount: savePost.likes.length,
     commentsCount: savePost.comments.length,
     author: {
-      _id: user._id,
+      authorId: user._id,
       username: user.username,
       profilePicture: user.profilePicture,
     },
@@ -66,7 +130,9 @@ const createPost = async ({ content, userId, images }) => {
   return results;
 };
 
-const updatePost = async (postId, postData) => {
+const updatePost = async (postId, userId, postData) => {
+  const user = await User.findById(userId);
+
   const updatedPost = await Post.findByIdAndUpdate(postId, postData, {
     new: true,
   });
@@ -75,7 +141,21 @@ const updatePost = async (postId, postData) => {
     throw new Error("Post not found");
   }
 
-  return updatedPost;
+  const results = {
+    _id: updatedPost._id,
+    content: updatedPost.content,
+    images: updatedPost.images,
+    likesCount: updatedPost.likes.length,
+    commentsCount: updatedPost.comments.length,
+    author: {
+      authorId: user._id,
+      username: user.username,
+      profilePicture: user.profilePicture,
+    },
+    createdAt: updatedPost.createdAt,
+  };
+
+  return results;
 };
 
 const deletePost = async (postId) => {
@@ -86,4 +166,11 @@ const deletePost = async (postId) => {
   }
 };
 
-export { createPost, updatePost, getPosts, deletePost };
+export {
+  createPost,
+  updatePost,
+  getPosts,
+  deletePost,
+  getPostDetails,
+  getPostsByUser,
+};
