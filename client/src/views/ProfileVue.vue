@@ -12,7 +12,6 @@ import { useForm } from "vee-validate";
 import Message from "primevue/message";
 import { updateUserProfileApi } from "@/apis/userApi";
 import { updateProfileFormSchema } from "@/validations/userValidateSchemas";
-import { usePostStore } from "@/store/postStore";
 import CreatePostDialog from "@/components/CreatePostDialog.vue";
 import UpdatePostDialog from "@/components/UpdatePostDialog.vue";
 import Tabs from "primevue/tabs";
@@ -20,10 +19,11 @@ import TabList from "primevue/tablist";
 import Tab from "primevue/tab";
 import TabPanels from "primevue/tabpanels";
 import TabPanel from "primevue/tabpanel";
+import { usePostStore } from "@/store/postStore";
 
+const toast = useToast();
 const userStore = useUserStore();
 const postStore = usePostStore();
-const toast = useToast();
 const visible = ref(false);
 const loading = ref(false);
 
@@ -46,8 +46,7 @@ onMounted(() => {
 });
 
 onMounted(() => {
-  postStore.fetchPostsByUser(userStore.currentUser?._id);
-  postStore.fetchLikedPosts();
+  postStore.fetchPosts({ userId: userStore.currentUser?._id, type: "user" });
 });
 
 const onUpdateUserProfile = handleSubmit(async (values) => {
@@ -131,8 +130,19 @@ const onUpdateUserProfile = handleSubmit(async (values) => {
         </TabList>
         <TabPanels>
           <TabPanel value="0">
+            <Button
+              type="button"
+              text
+              :loading="postStore.loadingPosts"
+              disabled
+              label="Loading posts..."
+              severity="secondary"
+              class="load-more-button"
+              v-if="postStore.loadingPosts && !postStore.posts.length"
+            />
+
             <PostCard
-              v-for="post in postStore.userPosts"
+              v-for="post in postStore.posts"
               :key="post?._id"
               :post="post"
               :showPostAction="true"
@@ -143,17 +153,38 @@ const onUpdateUserProfile = handleSubmit(async (values) => {
               icon="pi pi-spinner"
               severity="contrast"
               style="display: flex; margin: 0 auto"
-              @click="postStore.loadMoreUserPosts(userStore.currentUser?._id)"
-              v-if="postStore.totalUserPosts > postStore.userPosts.length"
+              v-if="!postStore.loadingPosts && postStore.hasMorePosts"
+              :disabled="!postStore.hasMorePosts || postStore.loadingPosts"
+              :loading="postStore.loadingPosts"
+              @click="
+                postStore.fetchMorePosts({
+                  userId: userStore.currentUser?._id,
+                  type: 'user',
+                })
+              "
             />
           </TabPanel>
-          <TabPanel value="1">
+          <!-- <TabPanel value="1">
+            <Button
+              type="button"
+              text
+              :loading="userPostStore.loadingLikedPosts"
+              disabled
+              label="Loading posts..."
+              severity="secondary"
+              class="load-more-button"
+              v-if="
+                userPostStore.loadingLikedPosts &&
+                !userPostStore.likedPosts.length
+              "
+            />
+
             <PostCard
-              v-for="post in postStore.likedPosts"
+              v-for="post in userPostStore.likedPosts"
               :key="post?._id"
               :post="post"
             />
-          </TabPanel>
+          </TabPanel> -->
         </TabPanels>
       </Tabs>
     </section>

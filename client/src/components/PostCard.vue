@@ -9,13 +9,17 @@ import { usePostStore } from "@/store/postStore";
 import { useToast } from "primevue/usetoast";
 
 const props = defineProps({
+  type: {
+    type: String,
+    default: "",
+  },
   post: {
     type: Object,
     required: true,
   },
   showPostAction: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 });
 
@@ -40,19 +44,29 @@ const confirmDeleteBox = (postId) => {
       severity: "danger",
     },
     accept: () => {
-      postStore.deletePost(postId, toast);
+      postStore.deletePost({
+        postId,
+        userId: userStore.currentUser?._id,
+        type: props.type,
+        toast,
+      });
     },
     reject: () => {},
   });
 };
 
-const onUpdatePost = (postId) => {
+const onClickUpdateBtn = (postId) => {
   postStore.setVisible2(true);
   postStore.fetchPostDetails(postId);
 };
 
 const onToggleLikePost = (postId) => {
-  postStore.toggleLikePost(postId, toast);
+  postStore.toggleLikePost({
+    postId,
+    userId: userStore.currentUser?._id,
+    type: props.type,
+    toast,
+  });
 };
 </script>
 
@@ -60,13 +74,13 @@ const onToggleLikePost = (postId) => {
   <article>
     <img
       class="profile-pic"
-      :src="post?.author?.profilePicture"
-      :alt="post?.author?.username"
+      :src="post?.profilePicture"
+      :alt="post?.username"
     />
 
     <div style="flex: 1">
       <div class="facenter" style="gap: 10px">
-        <p style="font-weight: 600">{{ post?.author?.username }}</p>
+        <p style="font-weight: 600">{{ post?.username }}</p>
         <p class="date">{{ formatDate(post?.createdAt) }}</p>
       </div>
 
@@ -104,7 +118,7 @@ const onToggleLikePost = (postId) => {
 
         <section v-if="showPostAction">
           <div
-            v-if="userStore.currentUser?._id === post?.author?.authorId"
+            v-if="userStore.currentUser?._id === post?.userId"
             class="facenter"
             style="gap: 8px"
           >
@@ -114,7 +128,7 @@ const onToggleLikePost = (postId) => {
               rounded
               raised
               severity="info"
-              @click="onUpdatePost(post?._id)"
+              @click="onClickUpdateBtn(post?._id)"
             />
             <Button
               icon="pi pi-trash"

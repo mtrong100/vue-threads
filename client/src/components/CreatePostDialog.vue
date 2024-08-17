@@ -3,33 +3,21 @@ import { usePostStore } from "@/store/postStore";
 import Dialog from "primevue/dialog";
 import ImageGallery from "./ImageGallery.vue";
 import Button from "primevue/button";
-import { useToast } from "primevue/usetoast";
 import Textarea from "primevue/textarea";
+import { useToast } from "primevue/usetoast";
 
 const toast = useToast();
 const postStore = usePostStore();
-
-const onUploadImages = async (event) => {
-  await postStore.uploadImages(event, toast);
-};
-
-const onDeleteImage = (index) => {
-  postStore.deleteImage(index);
-};
-
-const onCreatePost = async () => {
-  await postStore.createPost(toast);
-};
 </script>
 
 <template>
   <Dialog
-    v-model:visible="postStore.visible"
     modal
+    v-model:visible="postStore.visible"
     header="Create new post"
     :style="{ width: '40rem' }"
   >
-    <form @submit.prevent="onCreatePost">
+    <form @submit.prevent="postStore.createPost(toast)">
       <div class="dialog-body">
         <Textarea
           autoResize
@@ -42,7 +30,7 @@ const onCreatePost = async () => {
         <div v-if="postStore.images.length > 0">
           <ImageGallery
             :images="postStore.images"
-            @delete-image="onDeleteImage"
+            @delete-image="postStore.deleteImage(index)"
           />
         </div>
 
@@ -52,7 +40,7 @@ const onCreatePost = async () => {
               type="file"
               multiple
               accept="image/*"
-              @change="onUploadImages"
+              @change="postStore.uploadImages(event, toast)"
               class="image-input"
             />
             <label for="file-input" class="file-label">
@@ -73,6 +61,7 @@ const onCreatePost = async () => {
         <Button
           type="submit"
           label="Create post"
+          :disabled="postStore.isCreating"
           :loading="postStore.isCreating"
         />
       </div>

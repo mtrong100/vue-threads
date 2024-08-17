@@ -1,25 +1,31 @@
 <script setup>
-import { usePostStore } from "@/store/postStore";
 import Dialog from "primevue/dialog";
 import ImageGallery from "./ImageGallery.vue";
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
 import Textarea from "primevue/textarea";
 import { watch } from "vue";
+import { useUserStore } from "@/store/userStore";
+import { usePostStore } from "@/store/postStore";
+
+const props = defineProps({
+  type: {
+    type: String,
+    default: "",
+  },
+});
 
 const toast = useToast();
 const postStore = usePostStore();
+const userStore = useUserStore();
 
-const onUploadImages = async (event) => {
-  await postStore.uploadImages(event, toast);
-};
-
-const onDeleteImage = (index) => {
-  postStore.deleteImage(index);
-};
-
-const onUpdatePost = async () => {
-  await postStore.updatePost(postStore.postDetails?._id, toast);
+const onUpdatePost = () => {
+  postStore.updatePost({
+    postId: postStore.postDetails?._id,
+    userId: userStore.currentUser?._id,
+    type: props.type,
+    toast,
+  });
 };
 
 watch(
@@ -54,7 +60,7 @@ watch(
         <div v-if="postStore.images.length > 0">
           <ImageGallery
             :images="postStore.images"
-            @delete-image="onDeleteImage"
+            @delete-image="postStore.deleteImage(index)"
           />
         </div>
 
@@ -64,7 +70,7 @@ watch(
               type="file"
               multiple
               accept="image/*"
-              @change="onUploadImages"
+              @change="postStore.uploadImages(event, toast)"
               class="image-input"
             />
             <label for="file-input" class="file-label">
@@ -85,6 +91,7 @@ watch(
         <Button
           type="submit"
           label="Update post"
+          :disabled="postStore.isUpdating"
           :loading="postStore.isUpdating"
         />
       </div>
