@@ -40,7 +40,7 @@ const postStore = usePostStore();
               type="file"
               multiple
               accept="image/*"
-              @change="postStore.uploadImages(event, toast)"
+              @change="postStore.uploadImages($event, toast)"
               class="image-input"
             />
             <label for="file-input" class="file-label">

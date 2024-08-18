@@ -62,7 +62,7 @@ export const usePostStore = defineStore("post", {
     deleteImage(index) {
       this.images.splice(index, 1);
     },
-    async fetchPosts({ skip = 0, isMergeState = false, userId, type }) {
+    async fetchPosts({ skip = 0, isMergeState = false, userId, type } = {}) {
       this.loadingPosts = true;
       try {
         let response;
@@ -73,7 +73,7 @@ export const usePostStore = defineStore("post", {
             skip,
           });
         } else if (type === "liked") {
-          response = await getLikedPostsByUserApi(userId, {
+          response = await getLikedPostsByUserApi({
             limit: POST_LIMIT,
             skip,
           });
@@ -84,12 +84,13 @@ export const usePostStore = defineStore("post", {
         if (response) {
           if (isMergeState) {
             this.posts = [...this.posts, ...response.results];
+            this.totalPosts = response.totalPosts;
+            this.hasMorePosts = response.hasMorePosts;
           } else {
             this.posts = response.results;
+            this.totalPosts = response.totalPosts;
+            this.hasMorePosts = response.hasMorePosts;
           }
-
-          this.totalPosts = response.totalPosts;
-          this.hasMorePosts = response.hasMorePosts;
         }
       } catch (error) {
         console.log("Error fetching posts:", error.message);
@@ -225,11 +226,11 @@ export const usePostStore = defineStore("post", {
       const skip = this.posts.length;
 
       if (type === "user" && userId) {
-        this.fetchPosts({ userId, type: "user", skip, isMergeState });
+        this.fetchPosts({ userId, type: "user", skip, isMergeState: true });
       } else if (type === "liked" && userId) {
-        this.fetchPosts({ userId, type: "liked", skip, isMergeState });
+        this.fetchPosts({ userId, type: "liked", skip, isMergeState: true });
       } else {
-        this.fetchPosts({ skip, isMergeState });
+        this.fetchPosts({ skip, isMergeState: true });
       }
     },
     async fetchPostDetails(postId) {

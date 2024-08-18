@@ -1,5 +1,4 @@
 import Post from "../models/postModel.js";
-import User from "../models/userModel.js";
 
 const getPosts = async (limit, skip) => {
   const posts = await Post.find()

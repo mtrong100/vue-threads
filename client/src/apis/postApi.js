@@ -15,8 +15,8 @@ export const getPostsByUserApi = async (id, params) => {
   return response;
 };
 
-export const getLikedPostsByUserApi = async () => {
-  const response = await axios.get("/posts/like-posts");
+export const getLikedPostsByUserApi = async (params) => {
+  const response = await axios.get("/posts/like-posts", { params });
   return response;
 };
 

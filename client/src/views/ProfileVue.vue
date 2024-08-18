@@ -4,7 +4,7 @@ import { useUserStore } from "@/store/userStore";
 import Button from "primevue/button";
 import Divider from "primevue/divider";
 import Dialog from "primevue/dialog";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
 import { useToast } from "primevue/usetoast";
@@ -20,12 +20,14 @@ import Tab from "primevue/tab";
 import TabPanels from "primevue/tabpanels";
 import TabPanel from "primevue/tabpanel";
 import { usePostStore } from "@/store/postStore";
+import ConfirmDialog from "primevue/confirmdialog";
 
 const toast = useToast();
 const userStore = useUserStore();
 const postStore = usePostStore();
 const visible = ref(false);
 const loading = ref(false);
+const value = ref("0");
 
 const { handleSubmit, errors, defineField, setValues } = useForm({
   validationSchema: updateProfileFormSchema,
@@ -48,6 +50,23 @@ onMounted(() => {
 onMounted(() => {
   postStore.fetchPosts({ userId: userStore.currentUser?._id, type: "user" });
 });
+
+watch(
+  () => value.value,
+  (newVal) => {
+    if (newVal === "1") {
+      postStore.fetchPosts({
+        userId: userStore.currentUser?._id,
+        type: "liked",
+      });
+    } else {
+      postStore.fetchPosts({
+        userId: userStore.currentUser?._id,
+        type: "user",
+      });
+    }
+  }
+);
 
 const onUpdateUserProfile = handleSubmit(async (values) => {
   loading.value = true;
@@ -125,8 +144,8 @@ const onUpdateUserProfile = handleSubmit(async (values) => {
 
       <Tabs value="0">
         <TabList>
-          <Tab style="flex: 1" value="0">My Posts</Tab>
-          <Tab style="flex: 1" value="1">Liked Posts</Tab>
+          <Tab @click="value = '0'" style="flex: 1" value="0">My Posts</Tab>
+          <Tab @click="value = '1'" style="flex: 1" value="1">Liked Posts</Tab>
         </TabList>
         <TabPanels>
           <TabPanel value="0">
@@ -146,6 +165,7 @@ const onUpdateUserProfile = handleSubmit(async (values) => {
               :key="post?._id"
               :post="post"
               :showPostAction="true"
+              :type="'user'"
             />
 
             <Button
@@ -164,31 +184,47 @@ const onUpdateUserProfile = handleSubmit(async (values) => {
               "
             />
           </TabPanel>
-          <!-- <TabPanel value="1">
+          <TabPanel value="1">
             <Button
               type="button"
               text
-              :loading="userPostStore.loadingLikedPosts"
               disabled
               label="Loading posts..."
               severity="secondary"
               class="load-more-button"
-              v-if="
-                userPostStore.loadingLikedPosts &&
-                !userPostStore.likedPosts.length
-              "
+              :loading="postStore.loadingPosts"
+              v-if="postStore.loadingPosts && !postStore.posts.length"
             />
 
             <PostCard
-              v-for="post in userPostStore.likedPosts"
+              v-for="post in postStore.posts"
               :key="post?._id"
               :post="post"
+              :showPostAction="true"
+              :type="'liked'"
             />
-          </TabPanel> -->
+
+            <Button
+              label="Load more"
+              icon="pi pi-spinner"
+              severity="contrast"
+              style="display: flex; margin: 0 auto"
+              v-if="!postStore.loadingPosts && postStore.hasMorePosts"
+              :disabled="!postStore.hasMorePosts || postStore.loadingPosts"
+              :loading="postStore.loadingPosts"
+              @click="
+                postStore.fetchMorePosts({
+                  userId: userStore.currentUser?._id,
+                  type: 'liked',
+                })
+              "
+            />
+          </TabPanel>
         </TabPanels>
       </Tabs>
     </section>
 
+    <ConfirmDialog></ConfirmDialog>
     <CreatePostDialog />
     <UpdatePostDialog />
 
