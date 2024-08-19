@@ -4,6 +4,14 @@ import Divider from "primevue/divider";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import FollowCard from "@/components/FollowCard.vue";
+import { useUserStore } from "@/store/userStore";
+import { onMounted } from "vue";
+
+const userStore = useUserStore();
+
+onMounted(() => {
+  userStore.fetchUsers();
+});
 </script>
 
 <template>
@@ -15,17 +23,11 @@ import FollowCard from "@/components/FollowCard.vue";
       </InputGroup>
       <Divider />
       <div>
-        <FollowCard />
-        <FollowCard />
-        <FollowCard />
-        <FollowCard />
-        <FollowCard />
-        <FollowCard />
-        <FollowCard />
-        <FollowCard />
-        <FollowCard />
-        <FollowCard />
-        <FollowCard />
+        <FollowCard
+          v-for="user in userStore.users"
+          :key="user.id"
+          :user="user"
+        />
       </div>
     </section>
   </div>

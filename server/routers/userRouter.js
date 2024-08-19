@@ -1,11 +1,13 @@
 import express from "express";
 import {
   getUserById,
+  getUsers,
   loginUser,
   logoutUser,
   registerUser,
   resetPassword,
   sendOtpCode,
+  toggleFollowUser,
   updateUserProfile,
 } from "../controllers/userController.js";
 import { protect } from "../middlewares/authMiddleware.js";
@@ -20,19 +22,18 @@ import {
 
 const router = express.Router();
 
-// Route to register a new user
-router.post("/register", validate(registerUserSchema), registerUser);
+router.get("/", protect, getUsers);
 
-// Route to login a user
-router.post("/login", validate(loginUserSchema), loginUser);
-
-// Route to logout a user
-router.post("/logout", protect, logoutUser);
-
-// Route to get user profile by ID (protected route)
 router.get("/:id", protect, getUserById);
 
-// Route to update user profile (protected route)
+router.post("/register", validate(registerUserSchema), registerUser);
+
+router.post("/login", validate(loginUserSchema), loginUser);
+
+router.post("/logout", protect, logoutUser);
+
+router.post("/toggle-follow/:id", protect, toggleFollowUser);
+
 router.put(
   "/profile",
   protect,
@@ -40,10 +41,8 @@ router.put(
   updateUserProfile
 );
 
-// Route to request password reset (send email with token)
 router.post("/send-otp-code", validate(sendOtpSchema), sendOtpCode);
 
-// Route to reset the password
 router.put("/reset-password", validate(resetPasswordSchema), resetPassword);
 
 export default router;

@@ -1,5 +1,32 @@
 import * as userService from "../services/userService.js";
+import { USER_LIMIT } from "../utils/constant.js";
 import { generateTokenAndSetCookie } from "../utils/helper.js";
+
+export const getUsers = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || USER_LIMIT;
+    const skip = parseInt(req.query.skip) || 0;
+    const query = req.query.query || "";
+
+    const { results, totalUsers } = await userService.getUsers(
+      req.user._id,
+      limit,
+      skip,
+      query
+    );
+
+    const hasMoreUsers = results.length === limit;
+
+    return res.status(200).json({
+      message: "Users fetched successfully",
+      results,
+      totalUsers,
+      hasMoreUsers,
+    });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
 
 // @desc    Register a new user
 // @route   POST /api/users/register
@@ -96,6 +123,15 @@ export const resetPassword = async (req, res) => {
     return res.status(200).json({
       message: "Password reset successfully",
     });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export const toggleFollowUser = async (req, res) => {
+  try {
+    await userService.toggleFollowUser(req.user._id, req.params.id);
+    return res.status(200).json({ message: "Following user successfully" });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }

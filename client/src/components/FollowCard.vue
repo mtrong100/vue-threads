@@ -4,26 +4,39 @@ import Avatar from "primevue/avatar";
 import Button from "primevue/button";
 import { useUserStore } from "@/store/userStore";
 
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true,
+  },
+});
+
 const userStore = useUserStore();
 </script>
 
 <template>
   <div class="facb">
     <div style="display: flex; align-items: start; gap: 10px">
-      <Avatar
-        size="large"
-        :image="userStore.currentUser?.profilePicture"
-        shape="circle"
-      />
+      <Avatar size="large" :image="user?.profilePicture" shape="circle" />
       <div class="flexcol" style="gap: 5px">
-        <h5>{{ userStore.currentUser?.username }}</h5>
+        <h5>{{ user?.username }}</h5>
         <span style="font-size: 14px"
-          >{{ userStore.currentUser?.followers || 0 }} followers</span
+          >{{ user?.followersCount || 0 }} followers</span
         >
       </div>
     </div>
 
-    <Button label="Follow" outlined />
+    <Button
+      v-if="user.followers.includes(userStore.currentUser?._id)"
+      label="Following"
+      outlined
+      @click="userStore.toggleFollowUser(user?._id)"
+    />
+    <Button
+      v-else
+      label="Follow"
+      @click="userStore.toggleFollowUser(user?._id)"
+    />
   </div>
   <Divider />
 </template>

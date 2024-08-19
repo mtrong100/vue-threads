@@ -22,3 +22,4 @@ export const MONTH_NAMES = [
 ];
 
 export const POST_LIMIT = 2;
+export const USER_LIMIT = 10;

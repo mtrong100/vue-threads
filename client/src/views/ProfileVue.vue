@@ -49,6 +49,7 @@ onMounted(() => {
 
 onMounted(() => {
   postStore.fetchPosts({ userId: userStore.currentUser?._id, type: "user" });
+  userStore.fetchUserDetails(userStore.currentUser?._id);
 });
 
 watch(
@@ -120,8 +121,8 @@ const onUpdateUserProfile = handleSubmit(async (values) => {
       <div class="bio">{{ userStore.currentUser?.bio || "Lorem ipsum" }}</div>
 
       <div class="follow-stats facenter">
-        <span>{{ userStore.currentUser?.followers || 0 }} followers</span>
-        <span>{{ userStore.currentUser?.following || 0 }} following</span>
+        <span>{{ userStore.currentUser?.followersCount || 0 }} followers</span>
+        <span>{{ userStore.currentUser?.followingCount || 0 }} following</span>
         <span>{{ userStore.currentUser?.postCount || 0 }} posts</span>
       </div>
 

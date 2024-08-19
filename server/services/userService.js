@@ -2,6 +2,41 @@ import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { generateOtpCode } from "../utils/helper.js";
 import { sendOtpEmail } from "../libs/nodemailer.js";
+import Post from "../models/postModel.js";
+
+const getUsers = async (currentUserId, limit, skip, query) => {
+  const users = await User.find({
+    username: { $regex: query, $options: "i" },
+    _id: { $ne: currentUserId },
+  })
+    .skip(skip)
+    .limit(limit)
+    .exec();
+
+  const totalUsers = await User.countDocuments({
+    username: { $regex: query, $options: "i" },
+    _id: { $ne: currentUserId },
+  });
+
+  if (!users || users.length === 0) throw new Error("No users found");
+
+  const results = users.map((user) => {
+    return {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      profilePicture: user.profilePicture,
+      bio: user.bio,
+      postCount: user.posts.length,
+      following: user.following,
+      followers: user.followers,
+      followersCount: user.followers.length,
+      followingCount: user.following.length,
+    };
+  });
+
+  return { results, totalUsers };
+};
 
 const registerUser = async ({ username, email, password, confirmPassword }) => {
   const userExists = await User.findOne({ email });
@@ -50,9 +85,22 @@ const getUserById = async (id) => {
     "-password -resetPasswordOtp -resetPasswordExpires"
   );
 
+  const posts = await Post.countDocuments({ userId: user._id });
+
   if (!user) throw new Error("User not found");
 
-  return user;
+  const results = {
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+    profilePicture: user.profilePicture,
+    bio: user.bio,
+    postCount: posts || 0,
+    followersCount: user.followers.length,
+    followingCount: user.following.length,
+  };
+
+  return results;
 };
 
 const updateUserProfile = async (userId, updateData) => {
@@ -125,6 +173,46 @@ const resetPassword = async ({
   await user.save();
 };
 
+const toggleFollowUser = async (userId, followerId) => {
+  try {
+    const user = await User.findById(userId);
+    const follower = await User.findById(followerId);
+
+    if (!user || !follower) {
+      throw new Error("User not found");
+    }
+
+    const isFollowing = user.following.includes(followerId);
+
+    if (isFollowing) {
+      user.following = user.following?.filter(
+        (id) => id.toString() !== followerId.toString()
+      );
+      follower.followers = follower.followers?.filter(
+        (id) => id.toString() !== userId.toString()
+      );
+    } else {
+      user.following.push(followerId);
+      follower.followers.push(userId);
+    }
+
+    await follower.save();
+    await user.save();
+
+    return {
+      success: true,
+      message: isFollowing
+        ? "Unfollowed successfully"
+        : "Followed successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -132,4 +220,6 @@ export {
   updateUserProfile,
   sendOtpCode,
   resetPassword,
+  getUsers,
+  toggleFollowUser,
 };

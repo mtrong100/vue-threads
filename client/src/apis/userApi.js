@@ -1,5 +1,10 @@
 import axios from "../configs/axiosConfig";
 
+export const getUsersApi = async (params) => {
+  const response = await axios.get("/users", { params });
+  return response;
+};
+
 export const registerUserApi = async (data) => {
   const response = await axios.post("/users/register", data);
   return response;
@@ -32,5 +37,10 @@ export const resetPasswordApi = async (data) => {
 
 export const sendOtpCodeApi = async (data) => {
   const response = await axios.post("/users/send-otp-code", data);
+  return response;
+};
+
+export const toggleFollowUserApi = async (id) => {
+  const response = await axios.post(`/users/toggle-follow/${id}`);
   return response;
 };
