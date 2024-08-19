@@ -13,6 +13,8 @@ export const useUserStore = defineStore("user", {
     loadingUsers: false,
     hasMoreUsers: false,
     totalUsers: 0,
+    search: "",
+    userDetails: null,
   }),
   actions: {
     saveCurrentUser(user) {
@@ -27,7 +29,11 @@ export const useUserStore = defineStore("user", {
       this.loadingUsers = true;
 
       try {
-        const response = await getUsersApi({ skip, query, limit: USER_LIMIT });
+        const response = await getUsersApi({
+          skip,
+          query,
+          limit: USER_LIMIT,
+        });
 
         if (response) {
           if (isMergeState) {
@@ -56,13 +62,24 @@ export const useUserStore = defineStore("user", {
         this.fetchUsers();
       }
     },
-    async fetchUserDetails(userId) {
+    async fetchUserCurrentUser(userId) {
       try {
         const response = await getUserDetailsApi(userId);
 
         if (response) {
           this.currentUser = response;
           localStorage.setItem("VUE_THREADS_USER", JSON.stringify(response));
+        }
+      } catch (error) {
+        console.log("Error fetching user details:", error.message);
+      }
+    },
+    async fetchUserDetails(userId) {
+      try {
+        const response = await getUserDetailsApi(userId);
+
+        if (response) {
+          this.userDetails = response;
         }
       } catch (error) {
         console.log("Error fetching user details:", error.message);

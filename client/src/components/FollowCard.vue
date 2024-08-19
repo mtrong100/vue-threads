@@ -3,6 +3,7 @@ import Divider from "primevue/divider";
 import Avatar from "primevue/avatar";
 import Button from "primevue/button";
 import { useUserStore } from "@/store/userStore";
+import { RouterLink } from "vue-router";
 
 const props = defineProps({
   user: {
@@ -17,9 +18,13 @@ const userStore = useUserStore();
 <template>
   <div class="facb">
     <div style="display: flex; align-items: start; gap: 10px">
-      <Avatar size="large" :image="user?.profilePicture" shape="circle" />
+      <RouterLink :to="`/profile/${user?._id}`">
+        <Avatar size="large" :image="user?.profilePicture" shape="circle" />
+      </RouterLink>
       <div class="flexcol" style="gap: 5px">
-        <h5>{{ user?.username }}</h5>
+        <RouterLink :to="`/profile/${user?._id}`" class="username">{{
+          user?.username
+        }}</RouterLink>
         <span style="font-size: 14px"
           >{{ user?.followersCount || 0 }} followers</span
         >
@@ -41,4 +46,13 @@ const userStore = useUserStore();
   <Divider />
 </template>
 
-<style scoped></style>
+<style scoped>
+.username {
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+}
+.username:hover {
+  color: #42b883;
+}
+</style>

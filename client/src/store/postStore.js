@@ -5,6 +5,7 @@ import {
   getPostDetailsApi,
   getPostsApi,
   getPostsByUserApi,
+  getPostsFromFollowingUsersApi,
   toggleLikePostApi,
   updatePostApi,
 } from "@/apis/postApi";
@@ -77,6 +78,11 @@ export const usePostStore = defineStore("post", {
             limit: POST_LIMIT,
             skip,
           });
+        } else if (type === "following") {
+          response = await getPostsFromFollowingUsersApi({
+            limit: POST_LIMIT,
+            skip,
+          });
         } else {
           response = await getPostsApi({ limit: POST_LIMIT, skip });
         }
@@ -97,6 +103,23 @@ export const usePostStore = defineStore("post", {
         this.posts = [];
       } finally {
         this.loadingPosts = false;
+      }
+    },
+    fetchMorePosts({ userId, type }) {
+      const skip = this.posts.length;
+
+      if (type === "user" && userId) {
+        this.fetchPosts({ userId, type: "user", skip, isMergeState: true });
+      } else if (type === "liked" && userId) {
+        this.fetchPosts({ userId, type: "liked", skip, isMergeState: true });
+      } else if (type === "following") {
+        this.fetchPosts({
+          type: "following",
+          skip,
+          isMergeState: true,
+        });
+      } else {
+        this.fetchPosts({ skip, isMergeState: true });
       }
     },
     async createPost(toast) {
@@ -222,17 +245,6 @@ export const usePostStore = defineStore("post", {
         }
       }
     },
-    fetchMorePosts({ userId, type }) {
-      const skip = this.posts.length;
-
-      if (type === "user" && userId) {
-        this.fetchPosts({ userId, type: "user", skip, isMergeState: true });
-      } else if (type === "liked" && userId) {
-        this.fetchPosts({ userId, type: "liked", skip, isMergeState: true });
-      } else {
-        this.fetchPosts({ skip, isMergeState: true });
-      }
-    },
     async fetchPostDetails(postId) {
       if (!postId) return;
 
@@ -278,6 +290,8 @@ export const usePostStore = defineStore("post", {
           this.fetchPosts({ userId, type: "user" });
         } else if (type === "liked" && userId) {
           this.fetchPosts({ userId, type: "liked" });
+        } else if (type === "following") {
+          this.fetchPosts({ type: "following" });
         } else {
           this.fetchPosts();
         }

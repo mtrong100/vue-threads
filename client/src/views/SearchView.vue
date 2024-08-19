@@ -5,20 +5,27 @@ import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import FollowCard from "@/components/FollowCard.vue";
 import { useUserStore } from "@/store/userStore";
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 
 const userStore = useUserStore();
 
 onMounted(() => {
   userStore.fetchUsers();
 });
+
+watch(
+  () => userStore.search,
+  () => {
+    userStore.fetchUsers({ query: userStore.search });
+  }
+);
 </script>
 
 <template>
   <div class="page-container">
     <section class="card-wrapper">
       <InputGroup>
-        <InputText placeholder="Search..." />
+        <InputText placeholder="Search..." v-model="userStore.search" />
         <Button icon="pi pi-search" />
       </InputGroup>
       <Divider />

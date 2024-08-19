@@ -1,4 +1,5 @@
 import Post from "../models/postModel.js";
+import User from "../models/userModel.js";
 
 const getPosts = async (limit, skip) => {
   const posts = await Post.find()
@@ -96,6 +97,50 @@ const getPostsByUser = async (userId, limit, skip) => {
     results,
     totalPosts,
   };
+};
+
+const getPostsFromFollwingUsers = async (userId, limit, skip) => {
+  const user = await User.findById(userId).select("following");
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const posts = await Post.find({ userId: { $in: user.following } })
+    .populate({
+      path: "userId",
+      select: "_id username profilePicture",
+    })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const totalPosts = await Post.countDocuments({
+    userId: { $in: user.following },
+  });
+
+  if (!posts || posts.length === 0) {
+    throw new Error("Posts not found");
+  }
+
+  const results = posts.map((post) => {
+    return {
+      _id: post._id,
+      content: post.content,
+      images: post.images,
+      likesCount: post.likes.length,
+      commentsCount: post.comments.length,
+      likes: post.likes,
+      comments: post.comments,
+      userId: post.userId._id,
+      username: post.userId.username,
+      profilePicture: post.userId.profilePicture,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+    };
+  });
+
+  return { results, totalPosts };
 };
 
 const getLikedPostsByUser = async (userId, limit, skip) => {
@@ -276,4 +321,5 @@ export {
   getPostsByUser,
   toggleLikePost,
   getLikedPostsByUser,
+  getPostsFromFollwingUsers,
 };

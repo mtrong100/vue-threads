@@ -20,6 +20,11 @@ export const getLikedPostsByUserApi = async (params) => {
   return response;
 };
 
+export const getPostsFromFollowingUsersApi = async (params) => {
+  const response = await axios.get("/posts/following-posts", { params });
+  return response;
+};
+
 export const createPostApi = async (data) => {
   const response = await axios.post("/posts/create", data);
   return response;

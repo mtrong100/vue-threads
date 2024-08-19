@@ -61,6 +61,31 @@ export const getPostsByUser = async (req, res) => {
   }
 };
 
+export const getPostsFromFollowingUsers = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || POST_LIMIT;
+    const skip = parseInt(req.query.skip) || 0;
+
+    const { results, totalPosts } = await postService.getPostsFromFollwingUsers(
+      req.user._id,
+      limit,
+      skip
+    );
+
+    const hasMorePosts = results.length === limit;
+
+    return res.status(200).json({
+      message: "Posts fetched successfully",
+      results,
+      totalPosts,
+      hasMorePosts,
+    });
+  } catch (error) {
+    console.error("Error getting posts from following users:", error.message);
+    return res.status(400).json({ message: error.message });
+  }
+};
+
 export const getLikedPostsByUser = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || POST_LIMIT;

@@ -49,7 +49,7 @@ onMounted(() => {
 
 onMounted(() => {
   postStore.fetchPosts({ userId: userStore.currentUser?._id, type: "user" });
-  userStore.fetchUserDetails(userStore.currentUser?._id);
+  userStore.fetchUserCurrentUser(userStore.currentUser?._id);
 });
 
 watch(

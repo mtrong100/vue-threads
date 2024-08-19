@@ -7,6 +7,7 @@ import { useUserStore } from "@/store/userStore";
 import { useConfirm } from "primevue/useconfirm";
 import { usePostStore } from "@/store/postStore";
 import { useToast } from "primevue/usetoast";
+import { RouterLink } from "vue-router";
 
 const props = defineProps({
   type: {
@@ -72,15 +73,19 @@ const onToggleLikePost = (postId) => {
 
 <template>
   <article>
-    <img
-      class="profile-pic"
-      :src="post?.profilePicture"
-      :alt="post?.username"
-    />
+    <RouterLink :to="`/profile/${post?.userId}`">
+      <img
+        class="profile-pic"
+        :src="post?.profilePicture"
+        :alt="post?.username"
+      />
+    </RouterLink>
 
     <div style="flex: 1">
       <div class="facenter" style="gap: 10px">
-        <p style="font-weight: 600">{{ post?.username }}</p>
+        <RouterLink :to="`/profile/${post?.userId}`" class="username">{{
+          post?.username
+        }}</RouterLink>
         <p class="date">{{ formatDate(post?.createdAt) }}</p>
       </div>
 
@@ -147,6 +152,15 @@ const onToggleLikePost = (postId) => {
 </template>
 
 <style scoped>
+.username {
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+}
+.username:hover {
+  color: #42b883;
+}
+
 article {
   display: flex;
   align-items: start;

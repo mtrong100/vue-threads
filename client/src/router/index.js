@@ -3,13 +3,14 @@ import HomeView from "@/views/HomeView.vue";
 import SearchView from "@/views/SearchView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import RegisterView from "@/views/RegisterView.vue";
-import ProfileVue from "@/views/ProfileVue.vue";
+import MyProfile from "@/views/MyProfile.vue";
 import MainLayout from "@/components/layouts/MainLayout.vue";
 import AuthenLayout from "@/components/layouts/AuthenLayout.vue";
 import { useUserStore } from "@/store/userStore";
 import FollowingView from "@/views/FollowingView.vue";
 import NotificationView from "@/views/NotificationView.vue";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
+import ProfileDetail from "@/views/ProfileDetail.vue";
 
 const routes = [
   {
@@ -17,10 +18,11 @@ const routes = [
     component: MainLayout,
     children: [
       { path: "", component: HomeView },
-      { path: "profile", component: ProfileVue },
+      { path: "profile", component: MyProfile },
       { path: "search", component: SearchView },
       { path: "notification", component: NotificationView },
       { path: "following", component: FollowingView },
+      { path: "profile/:id", component: ProfileDetail },
     ],
   },
   {

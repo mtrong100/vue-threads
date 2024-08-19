@@ -8,6 +8,7 @@ import {
   getPostsByUser,
   toggleLikePost,
   getLikedPostsByUser,
+  getPostsFromFollowingUsers,
 } from "../controllers/postController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 import { validate } from "../middlewares/validateMiddleware.js";
@@ -18,6 +19,8 @@ const router = express.Router();
 router.get("/", getPosts);
 
 router.get("/like-posts", protect, getLikedPostsByUser);
+
+router.get("/following-posts", protect, getPostsFromFollowingUsers);
 
 router.get("/:id", getPostDetails);
 
