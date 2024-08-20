@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted } from "vue";
 import PostCard from "@/components/PostCard.vue";
 import { useUserStore } from "@/store/userStore";
 import Button from "primevue/button";

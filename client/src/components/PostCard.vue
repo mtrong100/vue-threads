@@ -69,6 +69,10 @@ const onToggleLikePost = (postId) => {
     toast,
   });
 };
+
+const onCopyLink = (postId) => {
+  postStore.copyPostLink(postId, toast);
+};
 </script>
 
 <template>
@@ -117,8 +121,17 @@ const onToggleLikePost = (postId) => {
             @click="onToggleLikePost(post?._id)"
           />
 
-          <Button icon="pi pi-comment" severity="info" text raised rounded />
-          <Button icon="pi pi-share-alt" text raised rounded />
+          <RouterLink :to="`/post/${post?._id}`">
+            <Button icon="pi pi-comment" severity="info" text raised rounded />
+          </RouterLink>
+
+          <Button
+            @click="onCopyLink(post?._id)"
+            icon="pi pi-share-alt"
+            text
+            raised
+            rounded
+          />
         </div>
 
         <section v-if="showPostAction">

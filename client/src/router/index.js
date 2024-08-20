@@ -11,6 +11,7 @@ import FollowingView from "@/views/FollowingView.vue";
 import NotificationView from "@/views/NotificationView.vue";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import ProfileDetail from "@/views/ProfileDetail.vue";
+import PostDetail from "@/views/PostDetail.vue";
 
 const routes = [
   {
@@ -23,6 +24,7 @@ const routes = [
       { path: "notification", component: NotificationView },
       { path: "following", component: FollowingView },
       { path: "profile/:id", component: ProfileDetail },
+      { path: "post/:id", component: PostDetail },
     ],
   },
   {

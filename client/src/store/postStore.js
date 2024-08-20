@@ -292,10 +292,22 @@ export const usePostStore = defineStore("post", {
           this.fetchPosts({ userId, type: "liked" });
         } else if (type === "following") {
           this.fetchPosts({ type: "following" });
+        } else if (type === "details") {
+          this.fetchPostDetails(postId);
         } else {
           this.fetchPosts();
         }
       }
+    },
+    copyPostLink(postId, toast) {
+      navigator.clipboard.writeText(
+        `${import.meta.env.VITE_CLIENT_URL}/post/${postId}`
+      );
+      toast.add({
+        severity: "success",
+        detail: "Link copied to clipboard",
+        life: 1500,
+      });
     },
   },
 });
