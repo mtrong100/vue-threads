@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const MessageSchema = new mongoose.Schema(
   {
-    conversationId: {
+    receiver: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Conversation",
+      ref: "User",
       required: true,
     },
     sender: {
@@ -13,7 +13,6 @@ const MessageSchema = new mongoose.Schema(
       required: true,
     },
     text: { type: String, required: true },
-    image: { type: String },
   },
   {
     timestamps: true,
