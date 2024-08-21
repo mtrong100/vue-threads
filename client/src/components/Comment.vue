@@ -1,5 +1,6 @@
 <script setup>
 import { formatDate } from "@/utils/helper";
+import Button from "primevue/button";
 
 const props = defineProps({
   comment: {
@@ -7,6 +8,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+const emit = defineEmits(["delete-comment"]);
 </script>
 
 <template>
@@ -20,6 +23,13 @@ const props = defineProps({
     </div>
     <div class="comment-content">
       <p>{{ comment?.text }}</p>
+      <Button
+        @click="emit('delete-comment', comment?._id)"
+        label="Delete"
+        severity="danger"
+        outlined
+        size="small"
+      />
     </div>
   </div>
 </template>

@@ -1,5 +1,4 @@
 # TEST ACCOUNT
 
-- username:
-- email:
-- password:
+- email: testuser01@gmail.com
+- password: testuser01@

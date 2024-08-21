@@ -11,6 +11,6 @@ export const createCommentApi = async (id, data) => {
 };
 
 export const deleteCommentApi = async (id) => {
-  const response = await axios.delete(`/comments/${id}`);
+  const response = await axios.delete(`/comments/delete/${id}`);
   return response;
 };

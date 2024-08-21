@@ -1,4 +1,8 @@
-import { createCommentApi, getCommentsApi } from "@/apis/commentApi";
+import {
+  createCommentApi,
+  deleteCommentApi,
+  getCommentsApi,
+} from "@/apis/commentApi";
 import { COMMENT_LIMIT } from "@/utils/constants";
 import { defineStore } from "pinia";
 
@@ -10,6 +14,7 @@ export const useCommentStore = defineStore("comment", {
     hasMoreComments: false,
     text: "",
     isCreating: false,
+    isDeleting: false,
   }),
   actions: {
     async fetchComments({ skip = 0, isMergeState = false, postId } = {}) {
@@ -72,6 +77,30 @@ export const useCommentStore = defineStore("comment", {
       } finally {
         this.isCreating = false;
         this.text = "";
+        this.fetchComments({ postId });
+      }
+    },
+    async deleteComment({ commentId, postId, toast }) {
+      this.isDeleting = true;
+      try {
+        const response = await deleteCommentApi(commentId);
+
+        if (response) {
+          toast.add({
+            severity: "success",
+            detail: response.message,
+            life: 1500,
+          });
+        }
+      } catch (error) {
+        console.log("Error deleting comment:", error.message);
+        toast.add({
+          severity: "error",
+          detail: error.message,
+          life: 1500,
+        });
+      } finally {
+        this.isDeleting = false;
         this.fetchComments({ postId });
       }
     },

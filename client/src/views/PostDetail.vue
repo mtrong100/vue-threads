@@ -43,6 +43,10 @@ const onLoadMoreComments = () => {
   commentStore.fetchMoreComments({ postId });
 };
 
+const onDeleteComment = (commentId) => {
+  commentStore.deleteComment({ commentId, postId, toast });
+};
+
 onMounted(() => {
   postStore.fetchPostDetails(postId);
   commentStore.fetchComments({ postId });
@@ -181,6 +185,7 @@ onMounted(() => {
               v-for="comment in commentStore.comments"
               :key="comment?._id"
               :comment="comment"
+              @delete-comment="onDeleteComment"
             />
 
             <Button
