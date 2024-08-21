@@ -87,7 +87,14 @@ const onLogoutUser = async () => {
             icon="pi pi-bell"
             v-if="userStore.currentUser"
           />
-          <Button outlined icon="pi pi-comment" v-if="userStore.currentUser" />
+
+          <RouterLink to="/chat">
+            <Button
+              outlined
+              icon="pi pi-comment"
+              v-if="userStore.currentUser"
+            />
+          </RouterLink>
         </div>
       </div>
     </div>
