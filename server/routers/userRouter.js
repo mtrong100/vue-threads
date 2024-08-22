@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getFriends,
   getUserById,
   getUsers,
   loginUser,
@@ -23,6 +24,8 @@ import {
 const router = express.Router();
 
 router.get("/", protect, getUsers);
+
+router.get("/friends", protect, getFriends);
 
 router.get("/:id", protect, getUserById);
 

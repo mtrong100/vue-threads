@@ -28,6 +28,18 @@ export const getUsers = async (req, res) => {
   }
 };
 
+export const getFriends = async (req, res) => {
+  try {
+    const results = await userService.getFriends(req.user._id);
+    return res
+      .status(200)
+      .json({ message: "Friends fetched successfully", results });
+  } catch (error) {
+    console.log("Error getting friends:", error.message);
+    return res.status(400).json({ message: error.message });
+  }
+};
+
 // @desc    Register a new user
 // @route   POST /api/users/register
 // @access  Public

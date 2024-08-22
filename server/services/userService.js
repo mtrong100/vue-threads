@@ -3,6 +3,52 @@ import bcrypt from "bcrypt";
 import { generateOtpCode } from "../utils/helper.js";
 import { sendOtpEmail } from "../libs/nodemailer.js";
 import Post from "../models/postModel.js";
+import mongoose from "mongoose";
+
+const getFriends = async (userId) => {
+  const friends = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(userId), // Match the current user by ID
+      },
+    },
+    {
+      $project: {
+        following: 1, // Project only the following and followers arrays
+        followers: 1,
+      },
+    },
+    {
+      $addFields: {
+        mutualFriends: {
+          $setIntersection: ["$following", "$followers"], // Find the intersection of following and followers arrays
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: "users", // Lookup user details for mutual friends
+        localField: "mutualFriends",
+        foreignField: "_id",
+        as: "friends",
+      },
+    },
+    {
+      $project: {
+        friends: {
+          _id: 1,
+          username: 1,
+          profilePicture: 1, // Project only the fields you need for mutual friends
+        },
+      },
+    },
+  ]);
+
+  if (!friends || friends.length === 0)
+    throw new Error("No mutual friends found");
+
+  return friends[0].friends; // Return the list of mutual friends
+};
 
 const getUsers = async (currentUserId, limit, skip, query) => {
   const users = await User.find({
@@ -222,4 +268,5 @@ export {
   resetPassword,
   getUsers,
   toggleFollowUser,
+  getFriends,
 };

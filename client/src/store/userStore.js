@@ -1,4 +1,5 @@
 import {
+  getFriendsApi,
   getUserDetailsApi,
   getUsersApi,
   toggleFollowUserApi,
@@ -9,8 +10,10 @@ import { defineStore } from "pinia";
 export const useUserStore = defineStore("user", {
   state: () => ({
     users: [],
+    friends: [],
     currentUser: JSON.parse(localStorage.getItem("VUE_THREADS_USER")) || null,
     loadingUsers: false,
+    loadingFriends: false,
     hasMoreUsers: false,
     totalUsers: 0,
     search: "",
@@ -83,6 +86,20 @@ export const useUserStore = defineStore("user", {
         }
       } catch (error) {
         console.log("Error fetching user details:", error.message);
+      }
+    },
+    async fetchFriends() {
+      this.loadingFriends = true;
+
+      try {
+        const response = await getFriendsApi();
+        if (response) {
+          this.friends = response.results;
+        }
+      } catch (error) {
+        console.log("Error fetching friends:", error.message);
+      } finally {
+        this.loadingFriends = false;
       }
     },
   },

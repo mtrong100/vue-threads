@@ -1,33 +1,29 @@
 <script setup>
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
+import { useUserStore } from "@/store/userStore";
+import { onMounted, watch } from "vue";
+import { useChatStore } from "@/store/chatStore";
 
-const chats = [
-  {
-    id: 1,
-    username: "Alice",
-    avatar: "https://via.placeholder.com/40",
-    lastMessage: "Hey, how are you?",
-    messages: [
-      { id: 1, text: "Hey, how are you?", sentByUser: false },
-      { id: 2, text: "I'm good, thanks!", sentByUser: true },
-    ],
-  },
-];
+const userStore = useUserStore();
+const chatStore = useChatStore();
 
-const activeChat = chats[0];
-let messageText = "";
+const onSelectedChat = (chat) => {
+  chatStore.onSelectedConversation(chat);
+};
 
-function sendMessage() {
-  if (messageText.trim()) {
-    activeChat.messages.push({
-      id: activeChat.messages.length + 1,
-      text: messageText,
-      sentByUser: true,
-    });
-    messageText = "";
+onMounted(() => {
+  userStore.fetchFriends();
+});
+
+watch(
+  () => chatStore.selectedConversation,
+  (newValue) => {
+    if (newValue) {
+      chatStore.fetchMessages();
+    }
   }
-}
+);
 </script>
 
 <template>
@@ -37,46 +33,71 @@ function sendMessage() {
         <h2>Chats</h2>
       </div>
       <ul class="chat-list">
-        <li class="chat-item" v-for="chat in chats" :key="chat.id">
-          <img :src="chat.avatar" alt="Avatar" class="avatar" />
+        <li
+          @click="onSelectedChat(chat)"
+          class="chat-item"
+          v-for="chat in userStore.friends"
+          :key="chat.id"
+        >
+          <img :src="chat.profilePicture" alt="Avatar" class="avatar" />
           <div class="chat-info">
             <h3>{{ chat.username }}</h3>
-            <p>{{ chat.lastMessage }}</p>
           </div>
         </li>
       </ul>
     </div>
-    <div class="chat-main">
+
+    <div v-if="chatStore.selectedConversation" class="chat-main">
       <div class="chat-header">
-        <img :src="activeChat.avatar" alt="Avatar" class="avatar" />
-        <h3>{{ activeChat.username }}</h3>
+        <img
+          :src="chatStore.selectedConversation.profilePicture"
+          alt="Avatar"
+          class="avatar"
+        />
+        <h3>{{ chatStore.selectedConversation.username }}</h3>
       </div>
       <div class="chat-messages">
         <div
-          v-for="message in activeChat.messages"
+          v-for="message in chatStore.messages"
           :key="message.id"
-          :class="['message', message.sentByUser ? 'sent' : 'received']"
+          :class="['message', message.sender ? 'sent' : 'received']"
         >
           <p>{{ message.text }}</p>
         </div>
       </div>
       <div class="chat-input">
         <Textarea
-          v-model="messageText"
+          v-model="chatStore.text"
           autoResize
-          rows="4"
-          cols="30"
           placeholder="Type your message..."
           style="width: 100%"
         />
 
-        <Button label="Send" icon="pi pi-send" style="flex-shrink: 0" />
+        <Button
+          @click="chatStore.sendMessage()"
+          label="Send"
+          icon="pi pi-send"
+          style="flex-shrink: 0"
+          :disabled="chatStore.isSending"
+          :loading="chatStore.isSending"
+        />
       </div>
+    </div>
+
+    <div class="no-chat" v-else>
+      <h2>Select a chat to start messaging</h2>
     </div>
   </div>
 </template>
 
 <style scoped>
+.no-chat {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin: 0 auto;
+}
 .chat-container {
   padding: 30px 0;
   display: flex;

@@ -5,6 +5,11 @@ export const getUsersApi = async (params) => {
   return response;
 };
 
+export const getFriendsApi = async () => {
+  const response = await axios.get("/users/friends");
+  return response;
+};
+
 export const registerUserApi = async (data) => {
   const response = await axios.post("/users/register", data);
   return response;

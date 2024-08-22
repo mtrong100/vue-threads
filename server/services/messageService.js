@@ -7,7 +7,7 @@ const getMessages = async (senderId, receiverId) => {
     members: { $all: [senderId, receiverId] },
   }).populate({
     path: "messages",
-    options: { sort: { createdAt: -1 } },
+    options: { sort: { createdAt: 1 } },
     populate: [
       {
         path: "sender",
