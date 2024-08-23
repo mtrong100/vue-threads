@@ -4,6 +4,7 @@ import Button from "primevue/button";
 import { useUserStore } from "@/store/userStore";
 import { onMounted, watch } from "vue";
 import { useChatStore } from "@/store/chatStore";
+import io from "socket.io-client";
 
 const userStore = useUserStore();
 const chatStore = useChatStore();
@@ -14,6 +15,16 @@ const onSelectedChat = (chat) => {
 
 onMounted(() => {
   userStore.fetchFriends();
+});
+
+onMounted(() => {
+  if (userStore.currentUser) {
+    const socket = io(`${import.meta.env.VITE_SERVER_URL}`);
+
+    socket?.on("newMessage", (newMessage) => {
+      console.log("🚀 ~ socket?.on ~ newMessage:", newMessage);
+    });
+  }
 });
 
 watch(
@@ -60,7 +71,12 @@ watch(
         <div
           v-for="message in chatStore.messages"
           :key="message.id"
-          :class="['message', message.sender ? 'sent' : 'received']"
+          :class="[
+            'message',
+            message.sender?._id === userStore.currentUser?._id
+              ? 'sent'
+              : 'received',
+          ]"
         >
           <p>{{ message.text }}</p>
         </div>

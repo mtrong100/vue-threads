@@ -126,18 +126,19 @@ const onUpdateUserProfile = handleSubmit(async (values) => {
         <span>{{ userStore.currentUser?.postCount || 0 }} posts</span>
       </div>
 
-      <div class="grid-cols-2" style="margin-top: 20px; gap: 5px">
-        <Button
+      <div style="margin-top: 20px; gap: 5px">
+        <!-- <Button
           label="View stats"
           outlined
           severity="help"
           icon="pi pi-chart-bar"
-        />
+        /> -->
         <Button
           label="Update profile"
           outlined
           @click="visible = true"
           icon="pi pi-pencil"
+          style="width: 100%"
         />
       </div>
 

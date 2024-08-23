@@ -81,12 +81,12 @@ const onLogoutUser = async () => {
             :loading="loading"
             v-if="userStore.currentUser"
           />
-          <Button
+          <!-- <Button
             severity="info"
             outlined
             icon="pi pi-bell"
             v-if="userStore.currentUser"
-          />
+          /> -->
 
           <RouterLink to="/chat">
             <Button
